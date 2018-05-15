@@ -35,6 +35,10 @@ var car_control = cc.Class({
             default: 720,
             tooltip: '最大旋转速度'
         },
+        maxRotation: {
+            default: 720,
+            tooltip: '最大旋转角度'
+        },
         // 
         lateralFrictionRatio: {
             default: 0.1,
@@ -60,7 +64,7 @@ var car_control = cc.Class({
         _rotation: 0,
         _rotationSpeed: 0,
 
-
+        _driveForce:0,
         _force: cc.v2(),
         _linearSpeed: cc.v2(),
         _maxSpeed:0,
@@ -140,47 +144,17 @@ var car_control = cc.Class({
         if(!this._isStart){
             return;
         }
-        let t = 10;
         if (this._leftTouched) {
             this._rotationSpeed -= this.rotationAcceleration * dt;
-
-            this._maxRotation -= t * dt;
-            if (this._maxRotation < 45) {
-                this._maxRotation = 45;
-                cc.log("1111");
-            }
-            // this.subRatio += this.subRatio*dt;
-            // if(Math.abs( this.subRatio) > this.subRatioMax){
-            //     this.subRatio = this.subRatioMax;
-            // }
-            // this._maxSpeed -= this.subRatio * dt;
-            // if (Math.abs(this._maxSpeed) < this.minSpeed) {
-            //     this._maxSpeed = this.minSpeed;
-            // }
         }
         else if (this._rightTouched) {
             this._rotationSpeed += this.rotationAcceleration * dt;
-
-            this._maxRotation -= t * dt;
-            if (this._maxRotation < 45) {
-                this._maxRotation = 45;
-                cc.log("222222");
-            }
-            // this.subRatio += this.subRatio*dt;
-            // if(Math.abs( this.subRatio) > this.subRatioMax){
-            //     this.subRatio = this.subRatioMax;
-            // }
-
-            // this._maxSpeed -= this.subRatio * dt;
-            // if (Math.abs(this._maxSpeed) < this.minSpeed) {
-            //     this._maxSpeed = this.minSpeed;
-            // }
-
         }
         else {
             this._rotationSpeed = 0;
             this._maxSpeed = this.maxSpeed;
             this._maxRotation = this.maxRotationSpeed;
+            this._driveForce = this.driveForce;
         }
 
         if (Math.abs(this._rotationSpeed) > this._maxRotation) {
@@ -188,15 +162,25 @@ var car_control = cc.Class({
         }
 
         this._rotation += this._rotationSpeed * dt;
+        // if (Math.abs(this._rotation) > this.maxRotation) {
+        //     this._rotation = this._rotation > 0 ? this.maxRotation : -this.maxRotation;
+        // }
         this.node.rotation = this._rotation;
-
         let angle = this._rotation / 180 * Math.PI;
         //向前力的方向
         let forwardNormal = cc.v2(Math.sin(angle), Math.cos(angle));
         //cc.log("forwardNormal=", forwardNormal);
-        //横向摩擦方向
-        let lateralNormal = cc.v2(-forwardNormal.y, forwardNormal.x);
-        //cc.log("lateralNormal=", lateralNormal);
+        
+        //离心力方向
+        let lateralNormal = cc.v2(0, 0);
+        if (this._rotationSpeed > 0) {
+
+            lateralNormal = cc.v2(-forwardNormal.y, forwardNormal.x);
+        }
+        else if(this._rotationSpeed < 0){
+            lateralNormal = cc.v2(forwardNormal.y, -forwardNormal.x);
+        }
+        cc.log("lateralNormal=", lateralNormal);
 
         //线段速度的单位向量
         // let speedForwardNormal = this._linearSpeed.normalize()
@@ -205,25 +189,50 @@ var car_control = cc.Class({
         
         //cc.log("this._linearSpeed1 =", this._linearSpeed);
         //计算向前的力 driveForce 向前的加速度
-        this._force.addSelf(forwardNormal.mul(this.driveForce));
-        this._linearSpeed.addSelf(this._force.mul(dt));
-        //计算横向摩擦 dot点乘
-        // let lateralForce = lateralNormal.mul(this.driveForce*this.lateralFrictionRatio);
-        // this._linearSpeed.addSelf(lateralForce.mul(dt));
+        //if (Math.abs(this._rotationSpeed) == 0) {
+            this._force.addSelf(forwardNormal.mul(this.driveForce));
+            let forwardF = this._force.mul(dt);
+            this._linearSpeed.addSelf(forwardF);
 
+            // if (this._linearSpeed.mag() < 400) {
+            //     this._linearSpeed.normalizeSelf().mulSelf(400);
+            // }
+
+            //cc.log("forwardF =", forwardF);
+        //}
+        // else{
+        //     this._driveForce -= dt;
+        //     this._force.addSelf(forwardNormal.mul(this._driveForce));
+        //     let forwardF = this._force.mul(dt);
+
+        //     this._linearSpeed.addSelf(forwardF);
+        //     cc.log("forwardF =", forwardF);
+        // }
+  
+        //计算横向摩擦 dot点乘
         //算出侧滑的力
         let lateral_1 = lateralNormal.dot(this._linearSpeed);
         //乘以侧滑率
-        let lateral_2 = -lateral_1 * this.lateralFrictionRatio
+        let lateral_2 = lateral_1 * this.lateralFrictionRatio
         //算出最后的侧滑的力
-        let lateralFriction = lateralNormal.mul(lateral_2);
+        let lateralF = lateralNormal.mul(lateral_2);
+        //cc.log("lateralF =", lateralF);
         //和当前速度相加
-        this._linearSpeed.addSelf(lateralFriction);
+        this._linearSpeed.addSelf(lateralF);
 
+        //cc.log("this._maxSpeed =", this._maxSpeed);
         //不超过最大速度
-        if (this._linearSpeed.mag() > this._maxSpeed) {
-            this._linearSpeed.normalizeSelf().mulSelf(this._maxSpeed);
-        }
+        // if (Math.abs(this._rotationSpeed) > 0) {
+        //     if (this._linearSpeed.mag() > this._maxSpeed*2) {
+        //         this._linearSpeed.normalizeSelf().mulSelf(this._maxSpeed*2);
+        //     }
+        // }
+        // else{
+            if (this._linearSpeed.mag() > this._maxSpeed) {
+                this._linearSpeed.normalizeSelf().mulSelf(this._maxSpeed);
+            }
+        //}
+     
         //cc.log("this._linearSpeed3 =", this._linearSpeed);
         this.node.x += (this._linearSpeed.x) * dt;
         this.node.y += (this._linearSpeed.y) * dt;

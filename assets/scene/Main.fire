@@ -20,7 +20,7 @@
         "__id__": 23
       },
       {
-        "__id__": 33
+        "__id__": 34
       }
     ],
     "_tag": -1,
@@ -571,6 +571,9 @@
     "_components": [
       {
         "__id__": 19
+      },
+      {
+        "__id__": 33
       }
     ],
     "_prefab": null,
@@ -792,59 +795,40 @@
     "_atlas": null
   },
   {
-    "__type__": "41206drp1NI56nGrfZlc8+A",
+    "__type__": "2cfbfdxBMhCBYVMXnUIzp7r",
     "_name": "",
     "_objFlags": 0,
     "node": {
       "__id__": 14
     },
     "_enabled": true,
-    "maxSpeed": 400,
-    "driveForce": 400,
-    "intiaRatio": 100,
-    "rotationAcceleration": 200,
-    "maxRotationSpeed": 90,
-    "lateralFrictionRatio": 0,
-    "initialRotationRatio": 0.33,
-    "subRatio": 100,
-    "subRatioMax": 100,
-    "minSpeed": 350,
-    "_rotation": 0,
-    "_rotationSpeed": 0,
-    "_force": {
-      "__type__": "cc.Vec2",
-      "x": 0,
-      "y": 0
-    },
-    "_linearSpeed": {
-      "__type__": "cc.Vec2",
-      "x": 0,
-      "y": 0
-    },
-    "_maxSpeed": 0,
-    "_maxRotation": 0,
-    "_wheelX": 18,
-    "_wheelY": 30,
-    "streak1": {
-      "__id__": 7
-    },
-    "streak2": {
-      "__id__": 9
-    },
-    "streak3": {
-      "__id__": 11
-    },
-    "streak4": {
-      "__id__": 13
-    },
+    "maxSpeed": 100,
+    "driveForce": 200,
+    "rotationAcc": 50,
+    "maxRotation": 35,
     "startBtn": {
       "__id__": 20
     },
     "testBtn": {
       "__id__": 29
     },
-    "_leftTouched": false,
-    "_rightTouched": false,
+    "streak1": {
+      "__id__": 7
+    },
+    "_touchDir": 0,
+    "_touchDuration": 0,
+    "_curRotation": 0,
+    "_carRotation": 0,
+    "_forwardForce": {
+      "__type__": "cc.Vec2",
+      "x": 0,
+      "y": 0
+    },
+    "_carSpeed": {
+      "__type__": "cc.Vec2",
+      "x": 0,
+      "y": 0
+    },
     "_isStart": false
   },
   {
@@ -1413,6 +1397,64 @@
     "_atlas": null
   },
   {
+    "__type__": "41206drp1NI56nGrfZlc8+A",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 14
+    },
+    "_enabled": false,
+    "maxSpeed": 800,
+    "driveForce": 800,
+    "intiaRatio": 0,
+    "rotationAcceleration": 720,
+    "maxRotationSpeed": 90,
+    "maxRotation": 360,
+    "lateralFrictionRatio": 1,
+    "initialRotationRatio": 0.33,
+    "subRatio": 100,
+    "subRatioMax": 100,
+    "minSpeed": 200,
+    "_rotation": 0,
+    "_rotationSpeed": 0,
+    "_driveForce": 0,
+    "_force": {
+      "__type__": "cc.Vec2",
+      "x": 0,
+      "y": 0
+    },
+    "_linearSpeed": {
+      "__type__": "cc.Vec2",
+      "x": 0,
+      "y": 0
+    },
+    "_maxSpeed": 0,
+    "_maxRotation": 0,
+    "_wheelX": 18,
+    "_wheelY": 30,
+    "streak1": {
+      "__id__": 7
+    },
+    "streak2": {
+      "__id__": 9
+    },
+    "streak3": {
+      "__id__": 11
+    },
+    "streak4": {
+      "__id__": 13
+    },
+    "startBtn": {
+      "__id__": 20
+    },
+    "testBtn": {
+      "__id__": 29
+    },
+    "_leftTouched": false,
+    "_rightTouched": false,
+    "_isStart": false
+  },
+  {
     "__type__": "cc.Node",
     "_name": "camera",
     "_objFlags": 0,
@@ -1424,10 +1466,10 @@
     "_active": true,
     "_components": [
       {
-        "__id__": 34
+        "__id__": 35
       },
       {
-        "__id__": 35
+        "__id__": 36
       }
     ],
     "_prefab": null,
@@ -1472,7 +1514,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 33
+      "__id__": 34
     },
     "_enabled": true,
     "_targets": [
@@ -1487,7 +1529,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 33
+      "__id__": 34
     },
     "_enabled": true,
     "target": {
