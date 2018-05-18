@@ -52,15 +52,12 @@ var gameMgr = cc.Class({
         this.scoreLabel.string = Math.floor(pos.y/100);
     },
     judge(pos){
-        // if (Math.abs(pos.x) > 270) {
-        //     return false;
+        // let _vector = cc.v2(pos.x - this.blockPos.x, pos.y - this.blockPos.y);
+        // let _pLength = cc.pLength(_vector);
+        // cc.log("_pLength =", _pLength);
+        // if (_pLength < 1330 || _pLength > 1870) {
+        //     return false
         // }
-        let _vector = cc.v2(pos.x - this.blockPos.x, pos.y - this.blockPos.y);
-        let _pLength = cc.pLength(_vector);
-        cc.log("_pLength =", _pLength);
-        if (_pLength < 1330 || _pLength > 1870) {
-            return false
-        }
         return true;
     },
     addClickEvent: function(node,target,component,handler){

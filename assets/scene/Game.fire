@@ -160,8 +160,8 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": 457,
-      "y": 855
+      "x": 435,
+      "y": 881
     },
     "_skewX": 0,
     "_skewY": 0,
@@ -1049,7 +1049,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "block_1",
+    "_name": "straight",
     "_objFlags": 0,
     "_parent": {
       "__id__": 23
@@ -1077,8 +1077,8 @@
     "_cascadeOpacityEnabled": true,
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0,
-      "y": 0
+      "x": 0.5,
+      "y": 0.5
     },
     "_contentSize": {
       "__type__": "cc.Size",
@@ -1091,7 +1091,7 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": -320,
+      "x": 0,
       "y": 0
     },
     "_skewX": 0,
@@ -1133,14 +1133,14 @@
       "__id__": 24
     },
     "asset": {
-      "__uuid__": "de461ed1-3bfd-432f-9a8d-20a74cd910dc"
+      "__uuid__": "4cf73a40-e6a9-43ea-a440-218dd31e97c0"
     },
     "fileId": "85mGbQI2lFgpICU4J4CHZm",
     "sync": false
   },
   {
     "__type__": "cc.Node",
-    "_name": "block_2",
+    "_name": "corner1",
     "_objFlags": 0,
     "_parent": {
       "__id__": 23
@@ -1168,8 +1168,8 @@
     "_cascadeOpacityEnabled": true,
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0,
-      "y": 0
+      "x": 0.5,
+      "y": 0.5
     },
     "_contentSize": {
       "__type__": "cc.Size",
@@ -1178,11 +1178,11 @@
     },
     "_rotationX": 0,
     "_rotationY": 0,
-    "_scaleX": 1,
+    "_scaleX": -1,
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": -320,
+      "x": 0,
       "y": 0
     },
     "_skewX": 0,
@@ -1224,14 +1224,14 @@
       "__id__": 27
     },
     "asset": {
-      "__uuid__": "6d257b86-cb1f-4149-93a3-4d703de5148a"
+      "__uuid__": "367e945a-4a59-4edc-8a13-897b726b4f54"
     },
     "fileId": "ad4dVHpLRPxoWieSfwP62B",
     "sync": false
   },
   {
     "__type__": "cc.Node",
-    "_name": "block_3",
+    "_name": "corner2",
     "_objFlags": 0,
     "_parent": {
       "__id__": 23
@@ -1259,8 +1259,8 @@
     "_cascadeOpacityEnabled": true,
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0,
-      "y": 0
+      "x": 0.5,
+      "y": 0.5
     },
     "_contentSize": {
       "__type__": "cc.Size",
@@ -1273,7 +1273,7 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": -960,
+      "x": 0,
       "y": 0
     },
     "_skewX": 0,
@@ -1315,21 +1315,21 @@
       "__id__": 30
     },
     "asset": {
-      "__uuid__": "050dce74-92dc-4b96-8173-9b2ddddaeb62"
+      "__uuid__": "62d6c3cb-b782-4629-ba38-1ca46bd5feeb"
     },
     "fileId": "efqVkVnS9PtY3Y2GdV1kzh",
     "sync": false
   },
   {
     "__type__": "cc.Node",
-    "_name": "block_4",
+    "_name": "corner3",
     "_objFlags": 0,
     "_parent": {
       "__id__": 23
     },
     "_children": [],
     "_tag": -1,
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 34
@@ -1350,8 +1350,8 @@
     "_cascadeOpacityEnabled": true,
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0,
-      "y": 0
+      "x": 0.5,
+      "y": 0.5
     },
     "_contentSize": {
       "__type__": "cc.Size",
@@ -1364,7 +1364,7 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": -1600,
+      "x": 0,
       "y": 0
     },
     "_skewX": 0,
@@ -1406,7 +1406,7 @@
       "__id__": 33
     },
     "asset": {
-      "__uuid__": "1f08a2e5-979f-4595-915a-48987a8db526"
+      "__uuid__": "10d059e0-c1be-4f72-871b-58204d02431f"
     },
     "fileId": "9efDU5qvZPJ4gv2MRDg5AF",
     "sync": false
@@ -1418,7 +1418,24 @@
     "node": {
       "__id__": 23
     },
-    "_enabled": true
+    "_enabled": true,
+    "straight": {
+      "__id__": 24
+    },
+    "corner1": {
+      "__id__": 27
+    },
+    "corner2": {
+      "__id__": 30
+    },
+    "corner3": {
+      "__id__": 33
+    },
+    "_blockMax": 3,
+    "_bolckObjList": null,
+    "_blockPoolList": null,
+    "_roadDir": 1,
+    "_configData": null
   },
   {
     "__type__": "cc.Node",

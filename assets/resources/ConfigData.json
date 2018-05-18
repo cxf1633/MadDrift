@@ -1,0 +1,56 @@
+{
+    "map": [
+        {
+            "id": 1, 
+            "from": 0,
+            "to":0,
+            "mapType":[
+                {
+                "style":"2:-1",
+                "weight":10
+                }
+            ]
+        },
+        {
+            "id": 2, 
+            "from": 1,
+            "to":1,
+            "mapType":[
+                {
+                "style":"2:1",
+                "weight":10
+                }
+            ]
+        },
+        {
+            "id": 2, 
+            "from": 1,
+            "to":1,
+            "mapType":[
+                {
+                "style":"2:1",
+                "weight":10
+                }
+            ]
+        },
+        {
+            "id": 3, 
+            "from": 4,
+            "to":20,
+            "mapType":[
+                {
+                    "style":"1:0",
+                    "weight":4
+                },
+                {
+                    "style":"2:1",
+                    "weight":3
+                },
+                {
+                    "style":"2:-1",
+                    "weight":3
+                }
+            ]
+        }
+    ]
+}
