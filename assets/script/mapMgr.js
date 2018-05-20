@@ -28,7 +28,6 @@ cc.Class({
 
         _blockPoolList:null,//各个地图块的池
 
-        _roadDir:DIRECTION.UP,
 
         _configData:null,
     },
@@ -46,17 +45,28 @@ cc.Class({
         this._blockPoolList[BLOCK_TYPE.STRAIGHT] = new cc.NodePool();
         let poolNum = 5;
         for (let i = 0; i < poolNum; ++i) {
-            let obj = this.createBlock(1);
+            let obj = this.createBlock(BLOCK_TYPE.STRAIGHT);
             this._blockPoolList[BLOCK_TYPE.STRAIGHT].put(obj);
         }
 
         this._blockPoolList[BLOCK_TYPE.CORNER1] = new cc.NodePool();
         poolNum = 5;
         for (let i = 0; i < poolNum; ++i) {
-            let obj = this.createBlock(2);
+            let obj = this.createBlock(BLOCK_TYPE.CORNER1);
             this._blockPoolList[BLOCK_TYPE.CORNER1].put(obj);
         }
-
+        this._blockPoolList[BLOCK_TYPE.CORNER2] = new cc.NodePool();
+        poolNum = 5;
+        for (let i = 0; i < poolNum; ++i) {
+            let obj = this.createBlock(BLOCK_TYPE.CORNER2);
+            this._blockPoolList[BLOCK_TYPE.CORNER2].put(obj);
+        }
+        this._blockPoolList[BLOCK_TYPE.CORNER3] = new cc.NodePool();
+        poolNum = 5;
+        for (let i = 0; i < poolNum; ++i) {
+            let obj = this.createBlock(BLOCK_TYPE.CORNER3);
+            this._blockPoolList[BLOCK_TYPE.CORNER3].put(obj);
+        }
         this.loadConfig();
     },
     loadConfig(){
@@ -84,14 +94,16 @@ cc.Class({
     //创建赛道
     createTrack(){
         cc.log("创建赛道");
-
-        this._blockMax = 2;
+        this._blockMax = 4;
         this._bolckObjList = new Array;
         for (let index = 0; index < this._blockMax; index++) {
             let data = this.getConfig(index);
             let rand = this.getRandom(1, 10);
             let w = 0;
             let style = null;//地块样式
+            if (data == null) {
+                cc.log("赛道数量超过配置表");
+            }
             for (let i = 0; i < data.mapType.length; i++) {
                 const v = data.mapType[i];
                 w += v.weight;
@@ -106,16 +118,14 @@ cc.Class({
             let blockType = parseInt(strList[0], 10);
             let dir = parseInt(strList[1], 10);
             let obj = this.getBlock(blockType);
-            if (blockType != BLOCK_TYPE.STRAIGHT) {
-                obj.setDirection(dir);
-            }
             if (this._bolckObjList[index -1] != null) {
                 let lastObj = this._bolckObjList[index -1];
-                obj.setPosition(lastObj);
+                obj.setPosAndDir(dir, lastObj);
             }
             else{
-                obj._position = cc.p(0, 320);
-                obj._root.setPosition(obj._position);
+                // obj._position = cc.p(0, 320);
+                // obj._root.setPosition(obj._position);
+                obj.setPosAndDir(dir);
             }
             obj._root.active = true;
             this.node.addChild(obj._root);

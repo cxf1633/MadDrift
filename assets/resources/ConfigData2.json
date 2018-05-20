@@ -1,0 +1,50 @@
+{
+    "map": [
+        {
+            "id": 1, 
+            "from": 0,
+            "to":2,
+            "mapType":[
+                {
+                "style":"1:0",
+                "weight":10
+                }
+            ]
+        },
+        {
+            "id": 2, 
+            "from": 3,
+            "to":100,
+            "mapType":[
+                {
+                    "style":"1:0",
+                    "weight":4
+                },
+                {
+                    "style":"2:1",
+                    "weight":1
+                },
+                {
+                    "style":"2:-1",
+                    "weight":1
+                },
+                {
+                    "style":"3:1",
+                    "weight":1
+                },
+                {
+                    "style":"3:-1",
+                    "weight":1
+                },
+                {
+                    "style":"4:1",
+                    "weight":1
+                },
+                {
+                    "style":"4:-1",
+                    "weight":1
+                }
+            ]
+        }
+    ]
+}
