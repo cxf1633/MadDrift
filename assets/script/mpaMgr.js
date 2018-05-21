@@ -11,8 +11,8 @@ cc.Class({
     },
 
     onLoad () {
-        this._tempTable = [1,2,2,2,1,2,1,2,1,2,1,2,1,2,1,2];
-        // this._tempTable = [1,3,2,3];
+        this._tempTable = [1,2,3,2,4,2,3,3,2,1,1,2,3,2,4,2,3,2,2,3,3,3,1,4,2,1,1,4,2,3,1,2,3,2,3,1,2,3];
+        // this._tempTable = [1,2,1,2,1];
     },
 
     start () {
@@ -25,19 +25,22 @@ cc.Class({
             cc.log("key: " + k);
 
             this._mapDataTable[k] = this.getNode(this._tempTable[k]);
-            let _mapNodeScript = this._mapDataTable[k].getComponent("mapData");
-            _mapNodeScript.set("type", this._tempTable[k]);
+            let _newNodeScript = this._mapDataTable[k].getComponent("mapData");
+            _newNodeScript.set("type", this._tempTable[k]);
 
-            if(this._tempTable[k] === 1){
-                // let _random = this.getRandom(12, 15) * 100;
-                let _random = 640;
+            if(this._tempTable[k] === 1){ 
+                //随机直线类型长度
+                let _random = this.getRandom(6, 16) * 100;
+                // let _random = 640
+                // cc.log(_random)
                 this._mapDataTable[k].height = _random;
             }
             //对转弯类型转向处理
-            else if(this._tempTable[k] === 2 || this._tempTable[k] === 3){
-                //转向特殊处理(待定)
+            else if(this._tempTable[k] === 2 || this._tempTable[k] === 3 || this._tempTable[k] === 4){
+                //反转方向特殊处理(待定)
                 let _random = this.getRandom(0, 1);
-                cc.log(_random)
+                // let _random = 0
+                // cc.log(_random)
                 if(_random == 0) {
                     this._mapDataTable[k].scaleX = 1;
                 }
@@ -45,123 +48,111 @@ cc.Class({
                     this._mapDataTable[k].scaleX = -1;
                 }
 
-                //暂定正式代码
+                //暂定正式代码(根据参数进行新弯道地块反转朝向)
                 // this._mapDataTable[k].scaleX = -para[0];
             }
 
+            //上一个地块不为空
             if(this._mapDataTable[k - 1] != null) {
                 let _oldNode = this._mapDataTable[k - 1];
-                cc.log("oldPos " + _oldNode.getPosition())
                 let _oldPos = _oldNode.getPosition();
-                cc.log(_oldNode.height)
-                cc.log(_oldPos.y +  "  " + _oldNode.height + "  " + this._mapDataTable[k].height + "  ")
                 let _newPosY = _oldPos.y;
                 let _newPosX = _oldPos.x;
-                // cc.log(_newPosY);
 
+                var _quadrant = null;
                 let _oldNodeScript = _oldNode.getComponent("mapData");
+                //旧地块类型为1(直线)
                 if(_oldNodeScript.get("type") === 1) {
-                    cc.log("old类型是1")
-                    let _deviation = 0;
-                    if(_mapNodeScript.get("type") === 3) {
-                        _deviation = 320 * -this._mapDataTable[k].scaleX;
-                    }
+                    cc.log("old类型是直线")
+
+                    //判断直线当前旋转度数(旋转角度后 X,Y轴发生改变)
                     if(_oldNode.rotation === -90 || _oldNode.rotation === 270) {
-                        _newPosY = _newPosY + _deviation;
-                        _newPosX = _newPosX - _oldNode.height/2 - this._mapDataTable[k].height/2;
+                        _quadrant = 3;
+                        _newPosX = _newPosX - _oldNode.height;
                     }
                     else if(_oldNode.rotation === 90 || _oldNode.rotation === -270) {
-                        _newPosY = _newPosY - _deviation;
-                        _newPosX = _newPosX + _oldNode.height/2 + this._mapDataTable[k].height/2;
+                        _quadrant = 1;
+                        _newPosX = _newPosX + _oldNode.height;
                     }
                     else if(Math.abs(_oldNode.rotation) === 180) {
-                        _newPosY = _newPosY - _oldNode.height/2 - this._mapDataTable[k].height/2
-                        _newPosX = _newPosX - _deviation;
+                        _quadrant = 4;
+                        _newPosY = _newPosY - _oldNode.height;
                     }
                     else{
-                        _newPosY = _newPosY + _oldNode.height/2 + this._mapDataTable[k].height/2
-                        _newPosX = _newPosX + _deviation;
+                        _quadrant = 2;
+                        _newPosY = _newPosY + _oldNode.height;
                     }
+
+                    //继承直线的旋转角度
                     this._mapDataTable[k].rotation = _oldNode.rotation;
-
-                    // cc.log(_newPosX + "  " + _newPosY)
                 }
-                else if(_oldNodeScript.get("type") === 2 || _oldNodeScript.get("type") === 3) {
-                    cc.log("old类型是2,3,4")
+                //旧地块类型为2(弯道)
+                else if(_oldNodeScript.get("type") === 2 || _oldNodeScript.get("type") === 3 || _oldNodeScript.get("type") === 4) {
+                    cc.log("old类型是弯道")
+                    //根据弯道scale反转 对新地图块进行角度旋转
+                    this._mapDataTable[k].rotation = _oldNode.rotation + 90 * _oldNode.scaleX;
 
-                    if(_oldNode.scaleX == 1) {
-                        this._mapDataTable[k].rotation = _oldNode.rotation - 90;
+                    if(_oldNode.rotation === -90 || _oldNode.rotation === 270) {
+                        _quadrant = 2;
+                        _newPosX = _newPosX - _oldNode.width;
+                        _newPosY = _newPosY + _oldNode.height * _oldNode.scaleX;
+                    }
+                    else if(_oldNode.rotation === 90 || _oldNode.rotation === -270) {
+                        _quadrant = 4;
+                        _newPosX = _newPosX + _oldNode.width;
+                        _newPosY = _newPosY - _oldNode.height * _oldNode.scaleX;
+                    }
+                    else if(Math.abs(_oldNode.rotation) === 180) {
+                        _quadrant = 3;
+                        _newPosX = _newPosX - _oldNode.width * _oldNode.scaleX;
+                        _newPosY = _newPosY - _oldNode.height;
                     }
                     else {
-                        this._mapDataTable[k].rotation = _oldNode.rotation + 90;
-                    }
-
-                    let _deviation = 0;
-                    if(_oldNodeScript.get("type") === 3) {
-                        if(_mapNodeScript.get("type") !== 3) {
-                            if(this._mapDataTable[k].scaleX === _oldNode.scaleX) {
-                                _deviation = 320 * this._mapDataTable[k].scaleX;
-                            }
-                            else {
-                                _deviation = 320 * -this._mapDataTable[k].scaleX;
-                            }
-                        }
-                        else{
-                            if(this._mapDataTable[k].scaleX !== _oldNode.scaleX){
-                                _deviation = 640 * -this._mapDataTable[k].scaleX;
-                            }
-                        }
-                    }
-                    cc.log("_deviation  " + _deviation)
-
-                    cc.log("newNode " + this._mapDataTable[k].rotation)
-                    if(this._mapDataTable[k].rotation === -90 || this._mapDataTable[k].rotation === 270) {
-                        _newPosY = _newPosY + _deviation
-                        _newPosX = _newPosX - _oldNode.height/2 - this._mapDataTable[k].height/2;
-                    }
-                    else if(this._mapDataTable[k].rotation === 90 || this._mapDataTable[k].rotation === -270) {
-                        _newPosY = _newPosY - _deviation
-                        _newPosX = _newPosX + _oldNode.height/2 + this._mapDataTable[k].height/2;
-                    }
-                    else if(Math.abs(this._mapDataTable[k].rotation) === 180) {
-                        _newPosY = _newPosY - _oldNode.height/2 - this._mapDataTable[k].height/2 - _deviation;
-                        _newPosX = _newPosX - _deviation
-                    }
-                    else {
-                        _newPosY = _newPosY + _oldNode.height/2 + this._mapDataTable[k].height/2
-                        _newPosX = _newPosX + _deviation;
+                        _quadrant = 1;
+                        _newPosX = _newPosX + _oldNode.width * _oldNode.scaleX;
+                        _newPosY = _newPosY + _oldNode.height;
                     }
                 }
-                cc.log(_newPosX + "  " + _newPosY)
 
-                if(_mapNodeScript.get("type") === 2 || _mapNodeScript.get("type") === 3) {
-                    cc.log("1111111111'")
+                //对玩到类型进行判断 如果新地图块转向角朝下 使其反转(新地图块不能朝下)
+                if(_newNodeScript.get("type") === 2 || _newNodeScript.get("type") === 3 || _newNodeScript.get("type") === 4) {
                     //对转完类型判断 转完的旋转角如果朝下 就旋转成相反朝向 (目前只有类型2)
-                    cc.log(this._mapDataTable[k].rotation + "  " + this._mapDataTable[k].scaleX)
-                    if((this._mapDataTable[k].rotation == -90 && this._mapDataTable[k].scaleX == 1) || (this._mapDataTable[k].rotation == 90 && this._mapDataTable[k].scaleX == -1)){
+                    if((this._mapDataTable[k].rotation == -90 && this._mapDataTable[k].scaleX == -1) || (this._mapDataTable[k].rotation == 90 && this._mapDataTable[k].scaleX == 1)){
                         //转完的旋转角如果朝下 就旋转成相反朝向
                         this._mapDataTable[k].scaleX = -this._mapDataTable[k].scaleX;
-
-                        cc.log("222222222222'")
-                        if(_mapNodeScript.get("type") === 3){
-                            cc.log("3333333333333'")
-                            _newPosY = _newPosY + 640
-                        }
                     }
                 }
-                
+
+                //新旧地图块反转不同的情况下 说明地块有偏差值(偏差值都为640) 根据前面定义的象限_quadrant进行不同方向的位移
+                if(this._mapDataTable[k].scaleX !== _oldNode.scaleX && _quadrant !== null) {
+                    cc.log("象限: " + _quadrant);
+                    if(_quadrant === 1) {
+                        _newPosY = _newPosY - 640;
+                    }
+                    else if(_quadrant === 2) {
+                        _newPosX = _newPosX + 640;
+                    }
+                    else if(_quadrant === 3) {
+                        _newPosY = _newPosY + 640;
+                    }
+                    else if(_quadrant === 4) {
+                        _newPosX = _newPosX - 640;
+                    }
+                }
+
+                //position赋值
                 this._mapDataTable[k].setPosition(cc.p(_newPosX, _newPosY))
             }
             else{
-                this._mapDataTable[k].setPosition(cc.p(0,0));
+                //第一块地块
+                this._mapDataTable[k].setPosition(cc.p(-320, -320));
             }
+            cc.log("newPos " + this._mapDataTable[k].getPosition())
+            cc.log("===================")
             
             this._mapDataTable[k].active = true;
             this._mapDataTable[k].parent = this.node;
-            cc.log("===================")
         }
-
-        cc.log(this._mapDataTable.length)
     },
 
     onDisable () {

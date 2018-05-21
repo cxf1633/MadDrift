@@ -1,17 +1,16 @@
 var mapBlock = require("mapBlock")
 
 var BLOCK_TYPE = {
-    STRAIGHT:1,
-    CORNER1:2,
-    CORNER2:3,
-    CORNER3:4,
+    STRAIGHT:0,
+    CORNER1:1,
+    CORNER2:2,
+    CORNER3:3,
 }
 var DIRECTION = {
-    NONE:0,
-    UP:1,
+    UP:0,
+    RIGHT:1,
     DOWN:2,
     LEFT:3,
-    RIGHT:4,
 }
 cc.Class({
     extends: cc.Component,
@@ -28,8 +27,10 @@ cc.Class({
 
         _blockPoolList:null,//各个地图块的池
 
-
         _configData:null,
+
+        _curDirNum:0,
+        _curDir:cc.v2,
     },
 
     start () {
@@ -94,15 +95,16 @@ cc.Class({
     //创建赛道
     createTrack(){
         cc.log("创建赛道");
-        this._blockMax = 4;
+        this._blockMax = 20;
         this._bolckObjList = new Array;
         for (let index = 0; index < this._blockMax; index++) {
             let data = this.getConfig(index);
-            let rand = this.getRandom(1, 10);
+            let rand = this.getRandom(1, 100);
             let w = 0;
             let style = null;//地块样式
             if (data == null) {
                 cc.log("赛道数量超过配置表");
+                return;
             }
             for (let i = 0; i < data.mapType.length; i++) {
                 const v = data.mapType[i];
@@ -123,14 +125,27 @@ cc.Class({
                 obj.setPosAndDir(dir, lastObj);
             }
             else{
-                // obj._position = cc.p(0, 320);
-                // obj._root.setPosition(obj._position);
                 obj.setPosAndDir(dir);
             }
             obj._root.active = true;
             this.node.addChild(obj._root);
             this._bolckObjList.push(obj);
         }
+    },
+
+    //判定游戏是否继续
+    isGameContinue(pos){
+        // let _vector = cc.v2(pos.x - this.blockPos.x, pos.y - this.blockPos.y);
+        // let _pLength = cc.pLength(_vector);
+        // cc.log("_pLength =", _pLength);
+        // if (_pLength < 1330 || _pLength > 1870) {
+        //     return false
+        // }
+        return true;
+    },
+    //获取游戏得分
+    getScore(pos){
+        return 100;
     },
     createBlock(blockType){
         let obj = null;

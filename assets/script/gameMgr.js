@@ -1,8 +1,11 @@
+//游戏管理器
 var gameMgr = cc.Class({
     extends: cc.Component,
 
     properties: {
         car:cc.Node,
+        map:cc.Node,
+
         scoreLabel:cc.Label,
         startBtn:cc.Button,
         continueBtn:cc.Button,
@@ -13,7 +16,7 @@ var gameMgr = cc.Class({
 
     start () {
         this._carMgr = this.car.getComponent("car_mgr2");
-
+        this._mapMgr = this.map.getComponent("mapMgr");
         this.addClickEvent(this.startBtn, this.node, "gameMgr", "onStartBtn");
         this.addClickEvent(this.continueBtn, this.node, "gameMgr", "onContinueBtn");
         this.addClickEvent(this.resetBtn, this.node, "gameMgr", "onResetBtn");
@@ -48,17 +51,9 @@ var gameMgr = cc.Class({
         }
         let pos = this.car.getPosition();
         //cc.log("pos =", pos);
-        this._isStart = this.judge(pos);
-        this.scoreLabel.string = Math.floor(pos.y/100);
-    },
-    judge(pos){
-        // let _vector = cc.v2(pos.x - this.blockPos.x, pos.y - this.blockPos.y);
-        // let _pLength = cc.pLength(_vector);
-        // cc.log("_pLength =", _pLength);
-        // if (_pLength < 1330 || _pLength > 1870) {
-        //     return false
-        // }
-        return true;
+        this._isStart = this._mapMgr.isGameContinue(pos);
+        // let score = this._mapMgr.getScore(pos);
+        // this.scoreLabel.string = score;
     },
     addClickEvent: function(node,target,component,handler){
         var eventHandler = new cc.Component.EventHandler();
