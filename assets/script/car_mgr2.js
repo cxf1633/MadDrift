@@ -143,10 +143,52 @@ var car_mgr = cc.Class({
         this._touchDuration = 0;
         this._curRotation = 0;
     },
+
+    _onKeyDown (event) {
+        switch(event.keyCode) {
+            case cc.KEY.a:
+            case cc.KEY.left:
+                if (!this._leftTouched) {
+                    this._touchDir = -1;
+                }
+                this._leftTouched = true;
+                break;
+            case cc.KEY.d:
+            case cc.KEY.right:
+                if (!this._rightTouched) {
+                    this._touchDir = 1;
+                }
+                this._rightTouched = true;
+                break;
+            case cc.KEY.space:
+                this.gameMgr.onStartBtn();
+                break;
+            case cc.KEY.r:
+                this.gameMgr.onResetBtn();
+                break;
+        }
+    },
+
+    _onKeyUp (event) {
+        switch(event.keyCode) {
+            case cc.KEY.a:
+            case cc.KEY.left:
+                this._leftTouched = false;
+                this._touchDir = 0;
+                break;
+            case cc.KEY.d:
+            case cc.KEY.right:
+                this._rightTouched = false;
+                this._touchDir = 0;
+                break;
+        }
+    },
     onEnable () {
         let canvas = cc.find('Canvas')
         canvas.on(cc.Node.EventType.TOUCH_START, this._onTouchStart, this);
         canvas.on(cc.Node.EventType.TOUCH_END, this._onTouchEnd, this);
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this._onKeyDown, this);
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this._onKeyUp, this);
 
         let rotation = 0;
         this.rotationArray = new Array;
@@ -158,5 +200,8 @@ var car_mgr = cc.Class({
         let canvas = cc.find('Canvas')
         canvas.off(cc.Node.EventType.TOUCH_START, this._onTouchStart, this);
         canvas.off(cc.Node.EventType.TOUCH_END, this._onTouchEnd, this);
+
+        cc.systemEvent.off(cc.SystemEvent.EventType.KEY_DOWN, this._onKeyDown, this);
+        cc.systemEvent.off(cc.SystemEvent.EventType.KEY_UP, this._onKeyUp, this);
     },
 });

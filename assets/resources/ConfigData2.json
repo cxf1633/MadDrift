@@ -1,0 +1,70 @@
+{
+    "map": [
+        {
+            "id": 1, 
+            "from": 0,
+            "to":0,
+            "mapType":[
+                {
+                    "style":"0:0",
+                    "weight":100
+                }
+            ]
+        },
+        {
+            "id": 2, 
+            "from": 1,
+            "to":1,
+            "mapType":[
+                {
+                    "style":"2:1",
+                    "weight":100
+                }
+            ]
+        },
+        {
+            "id": 3, 
+            "from": 2,
+            "to":2,
+            "mapType":[
+                {
+                    "style":"0:0",
+                    "weight":100
+                }
+            ]
+        },
+        {
+            "id": 3, 
+            "from": 3,
+            "to":3,
+            "mapType":[
+                {
+                    "style":"1:-1",
+                    "weight":100
+                }
+            ]
+        },
+        {
+            "id": 2, 
+            "from": 4,
+            "to":4,
+            "mapType":[
+                {
+                    "style":"0:0",
+                    "weight":100
+                }
+            ]
+        },
+        {
+            "id": 2, 
+            "from": 5,
+            "to":5,
+            "mapType":[
+                {
+                    "style":"2:-1",
+                    "weight":100
+                }
+            ]
+        }
+    ]
+}

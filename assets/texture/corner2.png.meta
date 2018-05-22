@@ -5,7 +5,7 @@
   "wrapMode": "clamp",
   "filterMode": "bilinear",
   "subMetas": {
-    "curve2": {
+    "corner2": {
       "ver": "1.0.3",
       "uuid": "af0a9586-3ed3-4990-99eb-52eead54f43d",
       "rawTextureUuid": "2903791b-0ccf-481b-bc33-38653132ceff",

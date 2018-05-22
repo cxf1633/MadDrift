@@ -40,6 +40,8 @@ var gameMgr = cc.Class({
         if (this._isStart) {
             return;
         }
+        this.map.x = 0;
+        this.map.y = 0;
         this.scoreLabel.string = 0;
         this.car.x = 0;
         this.car.y = 0;
@@ -52,8 +54,8 @@ var gameMgr = cc.Class({
         let pos = this.car.getPosition();
         //cc.log("pos =", pos);
         this._isStart = this._mapMgr.isGameContinue(pos);
-        // let score = this._mapMgr.getScore(pos);
-        // this.scoreLabel.string = score;
+        let score = this._mapMgr.getScore();
+        this.scoreLabel.string = score;
     },
     addClickEvent: function(node,target,component,handler){
         var eventHandler = new cc.Component.EventHandler();

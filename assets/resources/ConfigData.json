@@ -3,7 +3,7 @@
         {
             "id": 1, 
             "from": 0,
-            "to":0,
+            "to":1,
             "mapType":[
                 {
                     "style":"0:0",
@@ -13,23 +13,35 @@
         },
         {
             "id": 2, 
-            "from": 1,
+            "from": 2,
             "to":100,
             "mapType":[
                 {
+                    "style":"0:0",
+                    "weight":40
+                },
+                {
+                    "style":"1:1",
+                    "weight":10
+                },
+                {
+                    "style":"1:-1",
+                    "weight":10
+                }, 
+                {
                     "style":"2:1",
-                    "weight":30
+                    "weight":10
                 },
                 {
                     "style":"2:-1",
-                    "weight":30
+                    "weight":10
                 },
                 {
                     "style":"3:1",
-                    "weight":30
+                    "weight":10
                 },
                 {
-                    "style":"0:1",
+                    "style":"3:-1",
                     "weight":10
                 }
             ]

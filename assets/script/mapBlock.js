@@ -7,64 +7,28 @@ var DIRECTION = {
 //地图块
 var mapBlock = cc.Class({
     properties: {
-        _leftPos:0,
-        _rightPos:0,
-        _nextRoadPos:cc.v2,
-
-        _nextRota:0,
-        _dirNum:0,
-        _curDir:cc.v2,
-
-        _blockType:null,
-        _nextDir:cc.v2,
-
-        _forwardDir:0,
-
-        _startDir:0,
-        _endDir:0,
+        _id:0,
+        _dir:0,
+        _type:null,
         _root:null,
     },
     init(blockType, blockPrefab){
-        this._blockType = blockType;
+        this._type = blockType;
         this._root = cc.instantiate(blockPrefab);
-        //直线
-        if (blockType == 0) {
-            this._leftPos = 50;
-            this._rightPos = 590;
-            this._startPos = cc.v2(0, -320);
-            this._endPos = cc.v2(0, 320);
-        }
-        //所有的弯道默认图片是由下往上，往右边弯曲
-        else if(blockType == 1){
-            this._leftPos = 640 - 50;
-            this._rightPos = 640 - 50 - 540;
-            this._startPos = cc.v2(640 - 320, 0);
-            this._endPos = cc.v2(640, 320);
-        }
-        else if(blockType == 2){
-            this._leftPos = 1280 - 50;
-            this._rightPos = 1280 - 50 - 540;
-            this._nextRoadPos = cc.v2(1280, 1280 -320);
-        }
-        else if(blockType == 3){
-            this._leftPos = 1920 - 50;
-            this._rightPos = 1920 - 50 - 540;
-            this._nextRoadPos = cc.v2(1920, 1920 -320);
-        }
     },
 
-    setPosAndDir(dir, lastObj){
-        //设置长度
-        if(this._blockType == 0){
+    setPosAndDir(lastObj){
+        //随机直线类型长度
+        if(this._type == 0){
             // let _random = this.getRandom(6, 20) * 100;
-            // this._root.height = _random;
+            //this._root.height = 1500;
         }
         else{
-            this._root.scaleX = dir;
+            this._root.scaleX = this._dir;
         }
         //第一块
         if (lastObj == null) {
-            this._root.setPosition(cc.p(320, -320));
+            this._root.setPosition(cc.p(-320, 0));
         }
         else{
             let lastX = lastObj._root.x;
@@ -73,21 +37,21 @@ var mapBlock = cc.Class({
             let y = lastY;
             let _quadrant = 0;
             //前一个是直线
-            if (lastObj._blockType == 0) {
+            if (lastObj._type == 0) {
                 if(lastObj._root.rotation === -90 || lastObj._root.rotation === 270) {
-                    _quadrant = 2;
+                    _quadrant = 3;
                     x = x - lastObj._root.height;
                 }
                 else if(lastObj._root.rotation === 90 || lastObj._root.rotation === -270) {
-                    _quadrant = 4;
+                    _quadrant = 1;
                     x = x + lastObj._root.height;
                 }
                 else if(Math.abs(lastObj._root.rotation) === 180) {
-                    _quadrant = 3;
+                    _quadrant = 4;
                     y = y - lastObj._root.height;
                 }
                 else{
-                    _quadrant = 1;
+                    _quadrant = 2;
                     y = y + lastObj._root.height;
                 }
                 //继承直线的旋转角度
@@ -95,51 +59,54 @@ var mapBlock = cc.Class({
             }
             //前一个是弯道
             else{
-                if(lastObj._root.scaleX == 1) {
-                    this._root.rotation = lastObj._root.rotation - 90;
-                }
-                else {
-                    this._root.rotation = lastObj._root.rotation + 90;
-                }
-
-                cc.log("lastObj._root.rotation: " + lastObj._root.rotation);
+                //根据弯道scale反转 对新地图块进行角度旋转
+                this._root.rotation = lastObj._root.rotation + 90*lastObj._root.scaleX;
                 if(lastObj._root.rotation === -90 || lastObj._root.rotation === 270) {
-                    _quadrant = 3;
+                    _quadrant = 2;
                     x = x - lastObj._root.width;
-                    y = y - lastObj._root.height * lastObj._root.scaleX;
-                }
-                else if(lastObj._root.rotation === 90 || lastObj._root.rotation === -270) {
-                    _quadrant = 1;
-                    x = x + lastObj._root.width;
                     y = y + lastObj._root.height * lastObj._root.scaleX;
                 }
-                else if(Math.abs(lastObj._root.rotation) === 180) {
+                else if(lastObj._root.rotation === 90 || lastObj._root.rotation === -270) {
                     _quadrant = 4;
-                    x = x + lastObj._root.width * lastObj._root.scaleX;
+                    x = x + lastObj._root.width;
+                    y = y - lastObj._root.height * lastObj._root.scaleX;
+                }
+                else if(Math.abs(lastObj._root.rotation) === 180) {
+                    _quadrant = 3;
+                    x = x - lastObj._root.width * lastObj._root.scaleX;
                     y = y - lastObj._root.height;
                 }
                 else {
-                    _quadrant = 2;
-                    x = x - lastObj._root.width * lastObj._root.scaleX;
+                    _quadrant = 1;
+                    x = x + lastObj._root.width * lastObj._root.scaleX;
                     y = y + lastObj._root.height;
                 }
             }
-            if(this._root.scaleX !== lastObj._root.scaleX && _quadrant !== null) {
-                cc.log("象限: " + _quadrant);
-                if(_quadrant === 1) {
-                    x = x - 640;
-                }
-                else if(_quadrant === 2) {
-                    y = y - 640;
-                }
-                else if(_quadrant === 3) {
-                    x = x + 640;
-                }
-                else if(_quadrant === 4) {
-                    y = y + 640;
+            //对玩到类型进行判断 如果新地图块转向角朝下 使其反转(新地图块不能朝下)
+            if(this._type === 1 || this._type === 2 || this._type === 3) {
+                //对转完类型判断 转完的旋转角如果朝下 就旋转成相反朝向 (目前只有类型2)
+                if((this._root.rotation == -90 && this._root.scaleX == -1) || (this._root.rotation == 90 && this._root.scaleX == 1)){
+                    //转完的旋转角如果朝下 就旋转成相反朝向
+                    this._root.scaleX = -this._root.scaleX;
                 }
             }
-            cc.log("x ==>", x, "y===", y);
+            //新旧地图块反转不同的情况下 说明地块有偏差值(偏差值都为640) 根据前面定义的象限_quadrant进行不同方向的位移
+            if(this._root.scaleX !== lastObj._root.scaleX && _quadrant !== null) {
+                //cc.log("象限: " + _quadrant);
+                if(_quadrant === 1) {
+                    y = y - 640;
+                }
+                else if(_quadrant === 2) {
+                    x = x + 640;
+                }
+                else if(_quadrant === 3) {
+                    y = y + 640;
+                }
+                else if(_quadrant === 4) {
+                    x = x - 640;
+                }
+            }
+            //cc.log("x ==>", x, "y===", y);
             this._root.setPosition(cc.p(x, y))
         }
     },
