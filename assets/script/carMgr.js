@@ -1,4 +1,4 @@
-var car_mgr = cc.Class({
+var carMgr = cc.Class({
     extends: cc.Component,
 
     properties: {
@@ -56,12 +56,16 @@ var car_mgr = cc.Class({
         _curRotation:0, //当前转向
 
     },
-    reset(){
+    reset(resetInfo){
+        this.node.setPosition(resetInfo.p);
         this._curSpeed = 0;
-        this.node.rotation = 0;
+        this._touchDir = 0;
+        this._touchDuration = 0;
         this._curRotation = 0;
+        
+        this.node.rotation = resetInfo.r;
         for (let index = 0; index < this.arraySize; index++) {
-            this.rotationArray[index] = 0;
+            this.rotationArray[index] = resetInfo.r;
         }
     },
     update (dt) {
@@ -148,23 +152,17 @@ var car_mgr = cc.Class({
         switch(event.keyCode) {
             case cc.KEY.a:
             case cc.KEY.left:
-                if (!this._leftTouched) {
                     this._touchDir = -1;
-                }
-                this._leftTouched = true;
                 break;
             case cc.KEY.d:
             case cc.KEY.right:
-                if (!this._rightTouched) {
                     this._touchDir = 1;
-                }
-                this._rightTouched = true;
                 break;
             case cc.KEY.space:
                 this.gameMgr.onStartBtn();
                 break;
-            case cc.KEY.r:
-                this.gameMgr.onResetBtn();
+            case cc.KEY.c:
+                this.gameMgr.onContinueBtn();
                 break;
         }
     },
@@ -173,13 +171,15 @@ var car_mgr = cc.Class({
         switch(event.keyCode) {
             case cc.KEY.a:
             case cc.KEY.left:
-                this._leftTouched = false;
-                this._touchDir = 0;
+        this._touchDir = 0;
+        this._touchDuration = 0;
+        this._curRotation = 0;
                 break;
             case cc.KEY.d:
             case cc.KEY.right:
-                this._rightTouched = false;
-                this._touchDir = 0;
+        this._touchDir = 0;
+        this._touchDuration = 0;
+        this._curRotation = 0;
                 break;
         }
     },

@@ -1,14 +1,9 @@
-var DIRECTION = {
-    UP:0,
-    DOWN:2,
-    LEFT:-1,
-    RIGHT:1,
-}
 //地图块
 var mapBlock = cc.Class({
     properties: {
         _id:0,
         _dir:0,
+        _bScaleX:true,
         _type:null,
         _root:null,
     },
@@ -84,10 +79,12 @@ var mapBlock = cc.Class({
             }
             //对玩到类型进行判断 如果新地图块转向角朝下 使其反转(新地图块不能朝下)
             if(this._type === 1 || this._type === 2 || this._type === 3) {
-                //对转完类型判断 转完的旋转角如果朝下 就旋转成相反朝向 (目前只有类型2)
-                if((this._root.rotation == -90 && this._root.scaleX == -1) || (this._root.rotation == 90 && this._root.scaleX == 1)){
-                    //转完的旋转角如果朝下 就旋转成相反朝向
-                    this._root.scaleX = -this._root.scaleX;
+                if(this._bScaleX){
+                    //对转完类型判断 转完的旋转角如果朝下 就旋转成相反朝向 (目前只有类型2)
+                    if((this._root.rotation == -90 && this._root.scaleX == -1) || (this._root.rotation == 90 && this._root.scaleX == 1)){
+                        //转完的旋转角如果朝下 就旋转成相反朝向
+                        this._root.scaleX = -this._root.scaleX;
+                    }
                 }
             }
             //新旧地图块反转不同的情况下 说明地块有偏差值(偏差值都为640) 根据前面定义的象限_quadrant进行不同方向的位移
@@ -113,8 +110,11 @@ var mapBlock = cc.Class({
 
     //
     removeFromParent(){
+        cc.log("removeFromParent =", this._root._parent);
         if (this._root._parent != null) {
+            cc.log("1111");
             this._root.removeFromParent();
+            cc.log("2222 =", this._root._parent);
         }
     }
 });

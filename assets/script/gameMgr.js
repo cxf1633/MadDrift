@@ -15,37 +15,29 @@ var gameMgr = cc.Class({
     },
 
     start () {
-        this._carMgr = this.car.getComponent("car_mgr2");
+        this._carMgr = this.car.getComponent("carMgr");
         this._mapMgr = this.map.getComponent("mapMgr");
         this.addClickEvent(this.startBtn, this.node, "gameMgr", "onStartBtn");
         this.addClickEvent(this.continueBtn, this.node, "gameMgr", "onContinueBtn");
         this.addClickEvent(this.resetBtn, this.node, "gameMgr", "onResetBtn");
-
-        this.blockPos = cc.p(-1600, 0);
     },
     onStartBtn(){
         this._isStart = !this._isStart;
-        cc.log("onStartBtn===", this._isStart);
+        //cc.log("onStartBtn===", this._isStart);
     },
     onContinueBtn(){
-        cc.log("onContinueBtn===");
+        //cc.log("onContinueBtn===");
         if (this._isStart) {
             return;
         }
-        this.car.x = 0;
-        this._carMgr.reset();
+        let resetInfo = this._mapMgr.getContinuePos();
+        this._carMgr.reset(resetInfo);
     },
     onResetBtn(){
-        cc.log("onResetBtn===");
-        if (this._isStart) {
-            return;
-        }
-        this.map.x = 0;
-        this.map.y = 0;
-        this.scoreLabel.string = 0;
-        this.car.x = 0;
-        this.car.y = 0;
-        this._carMgr.reset();
+        //cc.log("onResetBtn===");
+        // if (this._isStart) {
+        //     return;
+        // }
     },
     update (dt) {
         if(!this._isStart){
