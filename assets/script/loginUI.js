@@ -2,11 +2,6 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        uIMgr: {
-            default:null, 
-            type:cc.Node,
-        },
-
         gameStartBtn: {
             default:null, 
             type:cc.Button,
@@ -34,12 +29,13 @@ cc.Class({
     },
 
     start () {
-        this.uIMgr = this.uIMgr.getComponent('ui_control');
+        this.changeBtnShow(false);
+        this.wxLogin();
     },
 
-    onGameStart(){
+    onGameStart(){        
         cc.log("开始游戏");
-        this.uIMgr.changeScene(2);
+        cc.director.loadScene('Game');
     },
 
     onGiveAReward(){
@@ -48,6 +44,50 @@ cc.Class({
 
     onRanking(){
         cc.log("排行榜");
+    },
+
+    wxLogin() {
+        var wxnode = this;
+        if(window.wx != undefined) {
+            window.wx.login({
+                success: function () {
+                    window.wx.getUserInfo({
+                        success: function (res) {
+                            cc.log("res  " + res)
+                            var userInfo = res.userInfo;
+                            var nickName = userInfo.nickName;
+                            var avatarUrl = userInfo.avatarUrl;
+                            var gender = userInfo.gender;
+                            var province = userInfo.province;
+                            var city = userInfo.city;
+                            var country = userInfo.country;
+    
+                            cc.log(userInfo);
+                        },
+                        fail: function (res) {
+                            cc.log("res  " + res.errMsg)
+                            // iOS 和 Android 对于拒绝授权的回调 errMsg 没有统一，需要做一下兼容处理
+                            if (res.errMsg.indexOf('auth deny') > -1 ||     res.errMsg.indexOf('auth denied') > -1 ) {
+                                // 处理用户拒绝授权的情况
+                                cc.log('授权失败')
+                            }
+                        },
+                        complete: function (res) {
+                            wxnode.changeBtnShow(true);
+                        }
+                    })
+                }
+            })
+        }
+        else {
+            this.changeBtnShow(true);
+        }
+    },
+
+    changeBtnShow(_isShow) {
+        this.gameStartBtn.node.active = _isShow;
+        this.giveARewardBtn.node.active = _isShow;
+        this.rankingBtn.node.active = _isShow;
     },
 
     addClickEvent: function(node,target,component,handler){

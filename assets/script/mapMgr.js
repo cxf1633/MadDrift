@@ -28,6 +28,8 @@ cc.Class({
         _maxBlockId:0,
 
         _curMapPos:null,
+
+        _lastRotation:0,//创建的最后一个地块不能往下
     },
 
     start () {
@@ -82,19 +84,22 @@ cc.Class({
 
     //初始化赛道
     initTrack(){
-        this._blockMax = 12;
+        this._blockMax = 10;
         this._bolckObjList = new Array;
         for (let i = 0; i < this._blockMax; i++) {
             let configList = this.getBlockConfig(i);
             if (configList != null) {
+                //判断最后的方向朝向
+                let offsetDir = this.getTurnOffset(configList);
                 for (let j = 0; j < configList.length; j++) {
                     const v = configList[j];
+                    v.dir = v.dir*offsetDir;
                     if (j != configList.length -1) {
                         v.scaleX = false;
                     }
                     let obj = this.createTrack(v);
-                    if (this._bolckObjList[i + j -1] != null) {
-                        let lastObj = this._bolckObjList[i + j -1];
+                    let lastObj = this._bolckObjList[this._bolckObjList.length - 1];
+                    if (lastObj != null) {
                         obj.setPosAndDir(lastObj);
                     }
                     else{
@@ -104,12 +109,35 @@ cc.Class({
                     this.node.addChild(obj._root);
                     this._bolckObjList.push(obj);
                 }
-                i = i + configList.length - 1;
+                i = this._bolckObjList.length-1 ;
             }
         }
     },
-    createTrackObj(){
 
+    getTurnOffset(configList){
+        let offsetDir = 1;
+        let lastRotation = this._lastRotation;
+        for (let m = 0; m < configList.length; m++) {
+            const v = configList[m];
+            if (v.type != 0) {
+                if (v.dir == 1) {
+                    lastRotation += 90;
+                }
+                else{
+                    lastRotation -= 90;
+                }
+            }
+        }
+        lastRotation = lastRotation%360;
+        if (Math.abs(lastRotation) == 180) {
+            offsetDir = -1;
+            this._lastRotation = lastRotation - 180;
+        }
+        else{
+            offsetDir = 1;
+            this._lastRotation = lastRotation;
+        }
+        return offsetDir;
     },
     getBlockConfig(index){
         let data = null;
@@ -203,34 +231,34 @@ cc.Class({
                 }
             }
         }
-        
-        if (this._maxBlockId - this._bolckObjList[0]._id > 6) {
-            let firstObj = this._bolckObjList.shift();
-            this._blockPoolList[firstObj._type].put(firstObj);
-            let lastObj = this._bolckObjList[this._bolckObjList.length -1];
-            
-            let configList = this.getBlockConfig(lastObj._id);
-            if (configList != null) {
-                for (let j = 0; j < configList.length; j++) {
-                    const v = configList[j];
-                    if (j != configList.length -1) {
-                        v.scaleX = false;
-                    }
-                    cc.log("33333");
-                    let newObj = this.createTrack(v);
-                    newObj.setPosAndDir(lastObj);
-                    this.node.addChild(newObj._root);
-                    this._bolckObjList.push(newObj);
-                    this.node.addChild(newObj._root);
-                    this._bolckObjList.push(newObj);
-                }
-            }       
-        }
         if (!hasBlock) {
             cc.log("找不到地图块 carPos:", carPos);
             let length = this._bolckObjList.length;
             let obj = this._bolckObjList[length - 1]
             return false;
+        }
+        //动态增加减少赛道
+        if (this._maxBlockId - this._bolckObjList[0]._id > 6) {
+            let firstObj = this._bolckObjList.shift();
+            this._blockPoolList[firstObj._type].put(firstObj);
+            let lastObj = this._bolckObjList[this._bolckObjList.length -1];
+            let configList = this.getBlockConfig(lastObj._id + 1);
+            if (configList != null) {
+                //判断最后的方向朝向
+                let offsetDir = this.getTurnOffset(configList);
+                for (let j = 0; j < configList.length; j++) {
+                    const v = configList[j];
+                    v.dir = v.dir*offsetDir;
+                    if (j != configList.length -1) {
+                        v.scaleX = false;
+                    }
+                    let newObj = this.createTrack(v);
+                    let lastObj = this._bolckObjList[this._bolckObjList.length -1];
+                    newObj.setPosAndDir(lastObj);
+                    this.node.addChild(newObj._root);
+                    this._bolckObjList.push(newObj);
+                }
+            }       
         }
         //判断是否碰撞
         result = this.calcCollision(carPos, this._curBlockObj);

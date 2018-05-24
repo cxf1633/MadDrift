@@ -23,7 +23,7 @@ var mapBlock = cc.Class({
         }
         //第一块
         if (lastObj == null) {
-            this._root.setPosition(cc.p(-320, 0));
+            this._root.setPosition(cc.p(-320, -960));
         }
         else{
             let lastX = lastObj._root.x;
@@ -51,11 +51,13 @@ var mapBlock = cc.Class({
                 }
                 //继承直线的旋转角度
                 this._root.rotation = lastObj._root.rotation;
+                this._root.rotation = this._root.rotation%360;
             }
             //前一个是弯道
             else{
                 //根据弯道scale反转 对新地图块进行角度旋转
                 this._root.rotation = lastObj._root.rotation + 90*lastObj._root.scaleX;
+                this._root.rotation = this._root.rotation%360;
                 if(lastObj._root.rotation === -90 || lastObj._root.rotation === 270) {
                     _quadrant = 2;
                     x = x - lastObj._root.width;
@@ -103,6 +105,7 @@ var mapBlock = cc.Class({
                     x = x - 640;
                 }
             }
+            //cc.log(this._root.rotation);
             //cc.log("x ==>", x, "y===", y);
             this._root.setPosition(cc.p(x, y))
         }
@@ -110,11 +113,8 @@ var mapBlock = cc.Class({
 
     //
     removeFromParent(){
-        cc.log("removeFromParent =", this._root._parent);
         if (this._root._parent != null) {
-            cc.log("1111");
             this._root.removeFromParent();
-            cc.log("2222 =", this._root._parent);
         }
     }
 });

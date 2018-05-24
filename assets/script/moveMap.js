@@ -5,7 +5,6 @@ cc.Class({
     properties: {
         canvas: cc.Node,
         map:cc.Node,
-        touchLocationDisplay: cc.Label,
     },
     curPos:null,
     onLoad () {

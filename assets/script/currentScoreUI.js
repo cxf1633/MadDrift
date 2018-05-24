@@ -42,12 +42,13 @@ cc.Class({
         this.uIMgr = this.uIMgr.getComponent('ui_control');
     },
 
-    showCurrentScore(){
-        this.currentScoreLab.string = 10000; 
+    showCurrentScore(_score){
+        this.currentScoreLab.string = _score; 
     },
 
     onAdvertising(){
         cc.log("广告");
+        this.uIMgr.changeScene(1, true);
     },
 
     onShared(){
@@ -56,8 +57,8 @@ cc.Class({
 
     onSkip(){
         cc.log("跳过");
-
-        this.uIMgr.changeScene(4);
+        // cc.director.loadScene('Login');
+        this.uIMgr.changeScene(3, this.currentScoreLab.string);
     },
 
     addClickEvent: function(node,target,component,handler){

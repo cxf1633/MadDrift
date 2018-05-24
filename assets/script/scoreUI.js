@@ -47,21 +47,27 @@ cc.Class({
     start () {
         this.uIMgr = this.uIMgr.getComponent('ui_control');
 
-        this.scoreLab.string = 10000; 
-        this.recordHighLab.string = "历史最高: " + 10000; 
+        // this.scoreLab.string = 10000; 
+        // this.recordHighLab.string = "历史最高: " + 10000; 
+    },
+
+    showScore(_score){
+        this.scoreLab.string = _score; 
     },
 
     onChallenge() {
         cc.log("发起挑战");
+        cc.director.loadScene('Login');
     },
     
     onAgain() {
         cc.log("再来一局");
+        cc.director.loadScene('Login');
     },
 
     onRanking() {
         cc.log("排行榜");
-        this.uIMgr.changeScene(1);
+        this.uIMgr.changeScene(4);
     },
     
     addClickEvent: function(node,target,component,handler){

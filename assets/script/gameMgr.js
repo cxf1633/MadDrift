@@ -3,6 +3,7 @@ var gameMgr = cc.Class({
     extends: cc.Component,
 
     properties: {
+        uIMgr:cc.Node,
         car:cc.Node,
         map:cc.Node,
 
@@ -15,6 +16,7 @@ var gameMgr = cc.Class({
     },
 
     start () {
+        this.uIMgr = this.uIMgr.getComponent('ui_control');
         this._carMgr = this.car.getComponent("carMgr");
         this._mapMgr = this.map.getComponent("mapMgr");
         this.addClickEvent(this.startBtn, this.node, "gameMgr", "onStartBtn");
@@ -48,6 +50,9 @@ var gameMgr = cc.Class({
         this._isStart = this._mapMgr.isGameContinue(pos);
         let score = this._mapMgr.getScore();
         this.scoreLabel.string = score;
+        if(!this._isStart){
+            this.uIMgr.changeScene(2, score);
+        }
     },
     addClickEvent: function(node,target,component,handler){
         var eventHandler = new cc.Component.EventHandler();

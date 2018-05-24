@@ -3,7 +3,7 @@
         {
             "id": 1, 
             "from": 0,
-            "to":1,
+            "to":3,
             "mapType":[
                 {
                     "style":"0:0",
@@ -13,13 +13,44 @@
         },
         {
             "id": 2, 
-            "from": 2,
-            "to":100,
+            "from": 4,
+            "to":30,
             "mapType":[
                 {
-                    "style":"0:0,1:-1,1:-1,1:-1,0:0",
-                    "weight":30
+                    "style":"0:0",
+                    "weight":40
                 },
+                {
+                    "style":"1:1",
+                    "weight":5
+                },
+                {
+                    "style":"1:-1",
+                    "weight":5
+                }, 
+                {
+                    "style":"2:1",
+                    "weight":10
+                },
+                {
+                    "style":"2:-1",
+                    "weight":10
+                },
+                {
+                    "style":"3:1",
+                    "weight":15
+                },
+                {
+                    "style":"3:-1",
+                    "weight":15
+                }
+            ]
+        },
+		 {
+            "id": 3, 
+            "from": 31,
+            "to":50,
+            "mapType":[
                 {
                     "style":"0:0",
                     "weight":10
@@ -34,19 +65,50 @@
                 }, 
                 {
                     "style":"2:1",
-                    "weight":10
+                    "weight":30
                 },
                 {
                     "style":"2:-1",
-                    "weight":10
+                    "weight":30
                 },
                 {
                     "style":"3:1",
-                    "weight":10
+                    "weight":5
                 },
                 {
                     "style":"3:-1",
+                    "weight":5
+                }
+            ]
+        },
+		 {
+            "id": 4, 
+            "from": 51,
+            "to":999999999999,
+            "mapType":[
+                {
+                    "style":"0:0,1:1,1:1,1:1,0:0",
                     "weight":10
+                },
+                {
+                    "style":"0:0,1:-1,1:-1,1:-1,0:0",
+                    "weight":10
+                },
+                {
+                    "style":"1:1",
+                    "weight":25
+                },
+                {
+                    "style":"1:-1",
+                    "weight":25
+                }, 
+                {
+                    "style":"2:1",
+                    "weight":15
+                },
+                {
+                    "style":"2:-1",
+                    "weight":15
                 }
             ]
         }

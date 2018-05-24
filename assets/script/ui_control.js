@@ -1,4 +1,4 @@
-cc.Class({
+var uiControl = cc.Class({
     extends: cc.Component,
 
     properties: {
@@ -7,13 +7,6 @@ cc.Class({
             default:null, 
             type:cc.Node,
             tooltip: '游戏场景'
-        },
-
-        //UI
-        loginUI: {
-            default:null, 
-            type:cc.Node,
-            tooltip: '登陆界面'
         },
 
         gameUI: {
@@ -28,19 +21,20 @@ cc.Class({
             tooltip: '当前分数界面'
         },
 
-        newRecordUI: {
-            default:null, 
-            type:cc.Node,
-            tooltip: '新纪录界面'
-        },
-
         scoreUI: {
             default:null, 
             type:cc.Node,
-            tooltip: '本次分数界面'
+            tooltip: '得分结算界面'
+        },
+
+        rankUI: {
+            default:null, 
+            type:cc.Node,
+            tooltip: '排行榜界面'
         },
 
         _sceneTable: null,
+        _oldNdoeId: null,
     },
 
     onLoad () {
@@ -48,10 +42,10 @@ cc.Class({
     },
 
     start () {
-        this.changeScene(2);
+        this.changeScene(1, false);
     },
 
-    changeScene(sceneId) {
+    changeScene(sceneId, _para) {
         if(this._sceneTable != null){
             for (var v of this._sceneTable) {
                 v.active = false;
@@ -60,29 +54,38 @@ cc.Class({
 
         let tempNode = null;
         if(sceneId == 1){
-            tempNode = [this.loginUI];
-            this.loginUI.active = true;
-        }
-        else if(sceneId == 2){
             tempNode = [this.gameNode, this.gameUI];
             this.gameNode.active = true;
             this.gameUI.active = true;
+            if(_para === true) {
+                this.gameNode.getComponent("gameMgr").onContinueBtn();
+            }
         }
-        else if(sceneId == 3){
+        else if(sceneId == 2){
             tempNode = [this.currentScoreUI];
             this.currentScoreUI.active = true;
+            if(_para != null) {
+                this.currentScoreUI.getComponent('currentScoreUI').showCurrentScore(_para);
+            }
         }
-        else if(sceneId == 4){
-            tempNode = [this.newRecordUI];
-            this.newRecordUI.active = true;
-        }
-        else if(sceneId == 5){
+        else if(sceneId == 3){
             tempNode = [this.scoreUI];
             this.scoreUI.active = true;
+            if(_para != null) {
+                this.scoreUI.getComponent('scoreUI').showScore(_para);
+            }
+        }
+        else if(sceneId == 4){
+            tempNode = [this.rankUI];
+            this.rankUI.active = true;
+            this.rankUI.getComponent('rankUI').getOldNodeId(this._oldNdoeId);
         }
 
         if(tempNode != null) {
             this._sceneTable = tempNode;
+            this._oldNdoeId = sceneId;
         }
     },
 });
+
+module.exports = uiControl;

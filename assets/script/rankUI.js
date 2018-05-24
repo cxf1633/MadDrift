@@ -24,6 +24,8 @@ cc.Class({
             type:cc.Button,
             tooltip: '我也要玩'
         },
+        
+        _oldNdoeId: null,
     },
 
     onLoad () {
@@ -32,11 +34,17 @@ cc.Class({
     },
 
     start () {
+        this.uIMgr = this.uIMgr.getComponent('ui_control');
         this.title.string = "排行榜"
     },
 
+    getOldNodeId(oldNdoeId) {
+        this._oldNdoeId = oldNdoeId;
+    },
+
     onReturn() {
-        cc.log("发起挑战");
+        cc.log("返回");
+        this.uIMgr.changeScene(this._oldNdoeId);
     },
 
     onPlay() {
