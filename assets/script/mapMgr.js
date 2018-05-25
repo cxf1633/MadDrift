@@ -15,7 +15,7 @@ cc.Class({
         corner2: cc.Node,
         corner3: cc.Node,
  
-        _blockMax:10,
+        _blockMax:0,
         
         _bolckObjList:null,//现有地图块
 
@@ -25,17 +25,19 @@ cc.Class({
 
         _curBlockObj:null,
 
-        _maxBlockId:0,
+
+        _hideBlockObj:null,
 
         _curMapPos:null,
 
         _lastRotation:0,//创建的最后一个地块不能往下
+
     },
 
     start () {
-        this._curMapPos = cc.p(0, 0);
+        this._blockMax = 20;
+        this._curMapPos = cc.p(0, -960);
         this._configData = {};
-
         this.prefabList = {};
         this.prefabList[BLOCK_TYPE.STRAIGHT] = this.straight;
         this.prefabList[BLOCK_TYPE.CORNER1] = this.corner1;
@@ -84,7 +86,6 @@ cc.Class({
 
     //初始化赛道
     initTrack(){
-        this._blockMax = 10;
         this._bolckObjList = new Array;
         for (let i = 0; i < this._blockMax; i++) {
             let configList = this.getBlockConfig(i);
@@ -166,7 +167,7 @@ cc.Class({
             cc.log("获取配置表的style错误！");
             return;
         }
-        cc.log("index =", index, "styleStr = ", styleStr);
+        //cc.log("index =", index, "styleStr = ", styleStr);
         let styleList = styleStr.split(",");
         let configList = new Array;
         for (let i = 0; i < styleList.length; i++) {
@@ -201,7 +202,8 @@ cc.Class({
         return obj;
     },
     //判定游戏是否继续
-    isGameContinue(carPos){
+    isGameContinue(car){
+        let carPos = car.getPosition();
         let result = true;
         let hasBlock = false;
         this._curMapPos = cc.p(this.node.x, this.node.y);
@@ -218,16 +220,25 @@ cc.Class({
                     break;
                 }
                 else{
-                    if (obj._id > this._maxBlockId) {
-                        this._maxBlockId = obj._id;
-                        cc.log("maxBlockId= ",this._maxBlockId);
-                    }      
                     //判断是否相邻
                     if (Math.abs(obj._id - this._curBlockObj._id) == 1) {
                         cc.log("进入赛道id:", obj._id, "  type=", obj._type);
                         this._curBlockObj = obj;
-                        break;
                     }
+                    if (this._hideBlockObj != null) {
+                        //cc.log("显示", this._hideBlockObj._root.zIndex);
+                        this._hideBlockObj._root.zIndex = 0;
+                        //this.node.zIndex = 0;
+                        car.zIndex = 1;
+                        this._hideBlockObj = null;
+                    }
+                    if( (obj._id - this._curBlockObj._id) > 1){
+                        //cc.log("隐藏", obj._root.zIndex);
+                        //this.node.zIndex = 10;
+                        obj._root.zIndex = 10;
+                        this._hideBlockObj = obj;
+                    }
+                  
                 }
             }
         }
@@ -238,7 +249,7 @@ cc.Class({
             return false;
         }
         //动态增加减少赛道
-        if (this._maxBlockId - this._bolckObjList[0]._id > 6) {
+        if ((this._bolckObjList[this._bolckObjList.length -1]._id - this._curBlockObj._id) < this._blockMax/2) {
             let firstObj = this._bolckObjList.shift();
             this._blockPoolList[firstObj._type].put(firstObj);
             let lastObj = this._bolckObjList[this._bolckObjList.length -1];
@@ -266,6 +277,7 @@ cc.Class({
     },
 
     calcCollision(carPos, obj){
+        //return true
         let result = true;
         if(obj._type == 0){
             let pLength =0
@@ -290,13 +302,7 @@ cc.Class({
             let vector = cc.v2(carPos.x - origin.x, carPos.y - origin.y);
             let pLength = cc.pLength(vector);
             let angle = cc.pToAngle(vector);
-            let rotation = angle/Math.PI*180;
-    
-            // cc.log("vector =", vector)
-            // cc.log("angle= ", angle)
-            // cc.log("rotation =", rotation);
-            //cc.log("pLength =", pLength);
-    
+            let rotation = angle/Math.PI*180;    
             let min = obj._root.width - 50 - 540;
             let max = obj._root.width - 50;
             if (pLength < min || pLength > max) {
@@ -382,11 +388,11 @@ cc.Class({
         return resetInfo;
     },
     //获取游戏得分
-    getScore(pos){
+    getScore(){
         return this._curBlockObj._id;
     },
     createBlock(blockType){
-        cc.log("创建新地块 type= ", blockType);
+        //cc.log("创建新地块 type= ", blockType);
         let obj = new mapBlock();
         obj.init(blockType, this.prefabList[blockType]);
         return obj;

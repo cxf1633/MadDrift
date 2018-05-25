@@ -26,6 +26,7 @@ var gameMgr = cc.Class({
     onStartBtn(){
         this._isStart = !this._isStart;
         //cc.log("onStartBtn===", this._isStart);
+        //this._carMgr.resetStreak();
     },
     onContinueBtn(){
         //cc.log("onContinueBtn===");
@@ -45,9 +46,7 @@ var gameMgr = cc.Class({
         if(!this._isStart){
             return;
         }
-        let pos = this.car.getPosition();
-        //cc.log("pos =", pos);
-        this._isStart = this._mapMgr.isGameContinue(pos);
+        this._isStart = this._mapMgr.isGameContinue(this.car);
         let score = this._mapMgr.getScore();
         this.scoreLabel.string = score;
         if(!this._isStart){

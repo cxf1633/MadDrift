@@ -2,7 +2,19 @@ var carMgr = cc.Class({
     extends: cc.Component,
 
     properties: {
-        // 
+        gameMgr: {
+            default: null,
+            type: cc.Component
+        },
+        //拖尾
+        leftStreak: {
+            default: null,
+            type: cc.MotionStreak
+        },
+		rightStreak: {
+            default: null,
+            type: cc.MotionStreak
+        },
         maxSpeed: {
             default: 200,
             tooltip: '最大速度'
@@ -35,26 +47,14 @@ var carMgr = cc.Class({
             default: 50,
             tooltip: '缓存大小'
         },
-
-        //拖尾
-        streak1: {
-            default: null,
-            type: cc.MotionStreak
-        },
-		streak2: {
-            default: null,
-            type: cc.MotionStreak
-        },
-        gameMgr: {
-            default: null,
-            type: cc.Component
-        },
         _curSpeed:0,
         _touchDir: 0,
         _touchDuration:0,
-
         _curRotation:0, //当前转向
-
+    },
+    resetStreak(){
+        this.leftStreak.reset();
+        this.rightStreak.reset();
     },
     reset(resetInfo){
         this.node.setPosition(resetInfo.p);
@@ -62,7 +62,6 @@ var carMgr = cc.Class({
         this._touchDir = 0;
         this._touchDuration = 0;
         this._curRotation = 0;
-        
         this.node.rotation = resetInfo.r;
         for (let index = 0; index < this.arraySize; index++) {
             this.rotationArray[index] = resetInfo.r;
@@ -118,18 +117,11 @@ var carMgr = cc.Class({
     },
     _updataStreak(){
         //左前轮
-        this.streak1.node.x = this.node.x - 16 * Math.cos(this.node.rotation / 180 * Math.PI)+ 18 * Math.sin(this.node.rotation / 180 * Math.PI);
-        this.streak1.node.y = this.node.y + 18 * Math.cos(this.node.rotation / 180 * Math.PI)+ 16 * Math.sin(this.node.rotation / 180 * Math.PI);
+        this.leftStreak.node.x = this.node.x - 16 * Math.cos(this.node.rotation / 180 * Math.PI)+ 18 * Math.sin(this.node.rotation / 180 * Math.PI);
+        this.leftStreak.node.y = this.node.y + 18 * Math.cos(this.node.rotation / 180 * Math.PI)+ 16 * Math.sin(this.node.rotation / 180 * Math.PI);
         //右前轮
-        this.streak2.node.x = this.node.x + 16 * Math.cos(this.node.rotation / 180 * Math.PI)+ 18 * Math.sin(this.node.rotation / 180 * Math.PI);
-        this.streak2.node.y = this.node.y + 18 * Math.cos(this.node.rotation / 180 * Math.PI)- 16 * Math.sin(this.node.rotation / 180 * Math.PI);
-        
-        // //左后轮
-        // this.streak3.node.x = this.node.x - 16 * Math.cos(this.node.rotation*3.14/180)- 30 * Math.sin(this.node.rotation*3.14/180);
-        // this.streak3.node.y = this.node.y - 30 * Math.cos(this.node.rotation*3.14/180)+ 16 * Math.sin(this.node.rotation*3.14/180);
-        // //右后轮
-        // this.streak4.node.x = this.node.x + 16 * Math.cos(this.node.rotation*3.14/180)- 30 * Math.sin(this.node.rotation*3.14/180); 
-        // this.streak4.node.y = this.node.y - 30 * Math.cos(this.node.rotation*3.14/180)- 16 * Math.sin(this.node.rotation*3.14/180);
+        this.rightStreak.node.x = this.node.x + 16 * Math.cos(this.node.rotation / 180 * Math.PI)+ 18 * Math.sin(this.node.rotation / 180 * Math.PI);
+        this.rightStreak.node.y = this.node.y + 18 * Math.cos(this.node.rotation / 180 * Math.PI)- 16 * Math.sin(this.node.rotation / 180 * Math.PI);
     },
     _onTouchStart (event) {
         let touchStartPos = event.touch.getLocation();
@@ -190,6 +182,10 @@ var carMgr = cc.Class({
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this._onKeyDown, this);
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this._onKeyUp, this);
 
+
+        this.leftStreak.node.zIndex = 1;
+        this.rightStreak.node.zIndex = 1;
+        this.node.zIndex = 1;
         let rotation = 0;
         this.rotationArray = new Array;
         for (let index = 0; index < this.arraySize; index++) {
