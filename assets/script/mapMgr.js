@@ -32,12 +32,18 @@ cc.Class({
 
         _lastRotation:0,//创建的最后一个地块不能往下
 
+        _blockScore:0,
+        _curScore:0,
+        _totalScore:0,
+
+        _lastAngle:0,
+        _lastScore:0,
     },
 
     start () {
         this._blockMax = 20;
         this._curMapPos = cc.p(0, -960);
-        this._configData = {};
+
         this.prefabList = {};
         this.prefabList[BLOCK_TYPE.STRAIGHT] = this.straight;
         this.prefabList[BLOCK_TYPE.CORNER1] = this.corner1;
@@ -72,6 +78,7 @@ cc.Class({
         }
         
         cc.log("从本地加载数据：ConfigData.json");
+        this._configData = {};
         var self = this;
         cc.loader.loadRes("ConfigData",function(err,txt){
             if (err) {
@@ -80,12 +87,12 @@ cc.Class({
             }
             self._configData = txt;
             cc.log("数据库加载完成，初始化赛道！");
-            self.initTrack();
+            self.initMapBlock();
         });
     },
 
     //初始化赛道
-    initTrack(){
+    initMapBlock(){
         this._bolckObjList = new Array;
         for (let i = 0; i < this._blockMax; i++) {
             let configList = this.getBlockConfig(i);
@@ -98,7 +105,7 @@ cc.Class({
                     if (j != configList.length -1) {
                         v.scaleX = false;
                     }
-                    let obj = this.createTrack(v);
+                    let obj = this.getBlockObj(v);
                     let lastObj = this._bolckObjList[this._bolckObjList.length - 1];
                     if (lastObj != null) {
                         obj.setPosAndDir(lastObj);
@@ -107,6 +114,7 @@ cc.Class({
                         this._curBlockObj = obj;
                         obj.setPosAndDir();
                     }
+                    obj.initPosInfo();
                     this.node.addChild(obj._root);
                     this._bolckObjList.push(obj);
                 }
@@ -153,6 +161,7 @@ cc.Class({
             return null;
         }
         let styleStr = null;//地块样式
+        let score = 0;
         let rand = this.getRandom(1, 100);
         let w = 0;
         for (let i = 0; i < data.mapType.length; i++) {
@@ -160,6 +169,7 @@ cc.Class({
             w += v.weight;
             if (rand <= w) {
                 styleStr = v.style;
+                score = v.score;
                 break;
             }
         }
@@ -188,17 +198,22 @@ cc.Class({
                 type:blockType,
                 dir:blockDir,
                 scaleX:true,
+                score:score/styleList.length
             }
             configList.push(config);
         }
         return configList;
     },
-    createTrack(config){
-        let obj = this.getBlock(config.type);
-        obj._id = config.id;
-        obj._dir = config.dir;
-        obj._bScaleX = config.scaleX;
-        obj._root.active = true;
+    getBlockObj(config){
+        let obj = null;
+        let _blockPool = this._blockPoolList[config.type];
+        if (_blockPool.size() > 0) {
+            obj = _blockPool.get();
+        }
+        else{
+            obj = this.createBlock(config.type);
+        }
+        obj.initConfig(config);
         return obj;
     },
     //判定游戏是否继续
@@ -210,8 +225,7 @@ cc.Class({
 
         for (let i = 0; i < this._bolckObjList.length; i++) {
             const obj = this._bolckObjList[i];
-            let posInfo = this.getBlockPosInfo(obj._root);
-            let oppoPos = posInfo.oppo;
+            let oppoPos = obj._oppoPos;
             if (carPos.x >= Math.min(obj._root.x, oppoPos.x) && carPos.x <= Math.max(obj._root.x, oppoPos.x) &&
                 carPos.y >= Math.min(obj._root.y, oppoPos.y) && carPos.y <= Math.max(obj._root.y, oppoPos.y)) {
                 hasBlock = true;
@@ -223,22 +237,26 @@ cc.Class({
                     //判断是否相邻
                     if (Math.abs(obj._id - this._curBlockObj._id) == 1) {
                         cc.log("进入赛道id:", obj._id, "  type=", obj._type);
+                        //计分
+                        if (obj._id > this._curBlockObj._id) {
+                            this._blockScore = 0;
+                        }
+                        else{
+                            this._blockScore = obj._score;
+                        }
+                        this._lastScore = 0;
                         this._curBlockObj = obj;
                     }
+                    //改变地图层级
                     if (this._hideBlockObj != null) {
-                        //cc.log("显示", this._hideBlockObj._root.zIndex);
                         this._hideBlockObj._root.zIndex = 0;
-                        //this.node.zIndex = 0;
                         car.zIndex = 1;
                         this._hideBlockObj = null;
                     }
                     if( (obj._id - this._curBlockObj._id) > 1){
-                        //cc.log("隐藏", obj._root.zIndex);
-                        //this.node.zIndex = 10;
                         obj._root.zIndex = 10;
                         this._hideBlockObj = obj;
                     }
-                  
                 }
             }
         }
@@ -263,9 +281,10 @@ cc.Class({
                     if (j != configList.length -1) {
                         v.scaleX = false;
                     }
-                    let newObj = this.createTrack(v);
+                    let newObj = this.getBlockObj(v);
                     let lastObj = this._bolckObjList[this._bolckObjList.length -1];
                     newObj.setPosAndDir(lastObj);
+                    newObj.initPosInfo();
                     this.node.addChild(newObj._root);
                     this._bolckObjList.push(newObj);
                 }
@@ -277,32 +296,40 @@ cc.Class({
     },
 
     calcCollision(carPos, obj){
-        //return true
         let result = true;
+        let per = 0;
         if(obj._type == 0){
             let pLength =0
             //左 右
             if(obj._root.rotation === -90 || obj._root.rotation === 270 ||
                 obj._root.rotation === 90 || obj._root.rotation === -270) {
-                pLength = Math.abs(carPos.y - obj._root.y); 
+                pLength = Math.abs(carPos.y - obj._root.y);
+                per = (carPos.x - obj._root.x)/640;
             }
             else{
                 pLength = Math.abs(carPos.x - obj._root.x);
+                per = (carPos.y - obj._root.y)/640;
             }
+            //判断碰撞
             if (pLength < 50 || pLength > 640 - 50) {
                 result = false;
             }
             else{
                 result = true;   
             }
+            //计算得分
+            let score = obj._score * per;
+            let addScore = score - this._blockScore;
+            this._curScore += addScore;
+            if (this._curScore > this._totalScore) {
+                this._totalScore = Math.ceil(this._curScore);
+            }
+            this._blockScore = score;
         }
         else{
-            let posInfo = this.getBlockPosInfo(obj._root);
-            let origin = posInfo.origin;
+            let origin = obj._originPos;
             let vector = cc.v2(carPos.x - origin.x, carPos.y - origin.y);
             let pLength = cc.pLength(vector);
-            let angle = cc.pToAngle(vector);
-            let rotation = angle/Math.PI*180;    
             let min = obj._root.width - 50 - 540;
             let max = obj._root.width - 50;
             if (pLength < min || pLength > max) {
@@ -311,103 +338,44 @@ cc.Class({
             else{
                 result = true;
             }
+            //计算得分
+            let angle = cc.pToAngle(vector);
+            per = Math.PI/5*obj._score;
+            let curScore = (obj._startAngle - angle)*per*obj._dir;
+            var addScore = curScore - this._lastScore;
+            this._curScore += addScore;
+            if (this._curScore > this._totalScore) {
+                this._totalScore = Math.ceil(this._curScore);
+            }
+            this._lastScore = curScore;
         }
         return result;
     },
 
-    getBlockPosInfo(root){
-        let originPos = null;//弯道的圆心
-        let oppoPos = null;//对角的位置
-        let trackPos = null;//赛道的位置
-        //50是边的缝隙，540是路宽
-        let offset = 50 + 540/2;
-        //右
-        if(root.rotation === 90 || root.rotation === -270) {
-            if (root._type == 0) {
-                trackPos = cc.v2(root.x, root.y - offset);
-                oppoPos = cc.v2(root.x + root.height, root.y - root.width);
-            }
-            else{
-                originPos = cc.v2(root.x, root.y - root.width*root.scaleX);
-                trackPos = cc.v2(root.x, root.y - offset*root.scaleX);
-                oppoPos = cc.v2(root.x + root.height, root.y - root.width*root.scaleX);
-            }
-        }
-        //左
-        else if(root.rotation === -90 || root.rotation === 270) {
-            if (root._type == 0) {
-                trackPos = cc.v2(root.x, root.y + offset);
-                oppoPos = cc.v2(root.x - root.height, root.y + root.width);
-            }
-            else{
-                originPos = cc.v2(root.x, root.y + root.width*root.scaleX);
-                trackPos = cc.v2(root.x, root.y + offset*root.scaleX);
-                oppoPos = cc.v2(root.x - root.height, root.y + root.width*root.scaleX);
-            }
-        }
-        //下
-        else if(Math.abs(root.rotation) === 180) {
-            if (root._type == 0) {
-                trackPos = cc.v2(root.x - offset, root.y);
-                oppoPos = cc.v2(root.x - root.width, root.y - root.height);
-            }
-            else{
-                originPos = cc.v2(root.x - root.width*root.scaleX, root.y);
-                trackPos = cc.v2(root.x - offset*root.scaleX, root.y);
-                oppoPos = cc.v2(root.x - root.width*root.scaleX, root.y - root.height);
-            }
-        }
-        //上
-        else{
-            if (root._type == 0) {
-                trackPos = cc.v2(root.x + offset, root.y);
-                oppoPos = cc.v2(root.x + root.width, root.y + root.height);
-            }
-            else{
-                originPos = cc.v2(root.x + root.width*root.scaleX, root.y);
-                trackPos = cc.v2(root.x + offset*root.scaleX, root.y);
-                oppoPos = cc.v2(root.x + root.width*root.scaleX, root.y + root.height);
-            }
-        }
-        let posInfo = {
-            origin:originPos,
-            oppo:oppoPos,
-            track:trackPos,
-        };
-        return posInfo;
+   //获取游戏得分
+    getScore(){
+        // cc.log("this._blockScore=", this._blockScore);
+        //cc.log("this._curScore=", this._curScore);
+        // cc.log("this._totalScore=", this._totalScore);
+        return this._totalScore ;
     },
-
     //获取复活的位置
     getContinuePos(){
         this.node.setPosition(this._curMapPos);
-        let posInfo = this.getBlockPosInfo(this._curBlockObj._root);   
         let resetInfo = {
-            p:posInfo.track,
+            p:this._curBlockObj._trackPos,
             r:this._curBlockObj._root.rotation,
         }
         return resetInfo;
     },
-    //获取游戏得分
-    getScore(){
-        return this._curBlockObj._id;
-    },
+
     createBlock(blockType){
         //cc.log("创建新地块 type= ", blockType);
         let obj = new mapBlock();
         obj.init(blockType, this.prefabList[blockType]);
         return obj;
     },
-    getBlock(blockType){
-        let obj = null;
-        let _blockPool = this._blockPoolList[blockType];
-        if (_blockPool.size() > 0) {
-            obj = _blockPool.get();
-        }
-        else{
-            obj = this.createBlock(blockType);
-        }
-        return obj;
-    },
+
 
     getRandom(min, max){
         switch(arguments.length){

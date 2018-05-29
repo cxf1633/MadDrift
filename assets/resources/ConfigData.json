@@ -7,7 +7,8 @@
             "mapType":[
                 {
                     "style":"0:0",
-                    "weight":100
+                    "weight":100,
+                    "score":10
                 }
             ]
         },
@@ -18,31 +19,38 @@
             "mapType":[
                 {
                     "style":"0:0",
-                    "weight":40
+                    "weight":40,
+                    "score":10
                 },
                 {
                     "style":"1:1",
-                    "weight":5
+                    "weight":5,
+                    "score":10
                 },
                 {
                     "style":"1:-1",
-                    "weight":5
+                    "weight":5,
+                    "score":10
                 }, 
                 {
                     "style":"2:1",
-                    "weight":10
+                    "weight":10,
+                    "score":10
                 },
                 {
                     "style":"2:-1",
-                    "weight":10
+                    "weight":10,
+                    "score":10
                 },
                 {
                     "style":"3:1",
-                    "weight":15
+                    "weight":15,
+                    "score":10
                 },
                 {
                     "style":"3:-1",
-                    "weight":15
+                    "weight":15,
+                    "score":10
                 }
             ]
         },
@@ -53,31 +61,38 @@
             "mapType":[
                 {
                     "style":"0:0",
-                    "weight":10
+                    "weight":10,
+                    "score":10
                 },
                 {
                     "style":"1:1",
-                    "weight":10
+                    "weight":10,
+                    "score":10
                 },
                 {
                     "style":"1:-1",
-                    "weight":10
+                    "weight":10,
+                    "score":10
                 }, 
                 {
                     "style":"2:1",
-                    "weight":30
+                    "weight":30,
+                    "score":10
                 },
                 {
                     "style":"2:-1",
-                    "weight":30
+                    "weight":30,
+                    "score":10
                 },
                 {
                     "style":"3:1",
-                    "weight":5
+                    "weight":5,
+                    "score":10
                 },
                 {
                     "style":"3:-1",
-                    "weight":5
+                    "weight":5,
+                    "score":10
                 }
             ]
         },
@@ -88,27 +103,33 @@
             "mapType":[
                 {
                     "style":"0:0,1:1,1:1,1:1,0:0",
-                    "weight":10
+                    "weight":10,
+                    "score":10
                 },
                 {
                     "style":"0:0,1:-1,1:-1,1:-1,0:0",
-                    "weight":10
+                    "weight":10,
+                    "score":10
                 },
                 {
                     "style":"1:1",
-                    "weight":25
+                    "weight":25,
+                    "score":10
                 },
                 {
                     "style":"1:-1",
-                    "weight":25
+                    "weight":25,
+                    "score":10
                 }, 
                 {
                     "style":"2:1",
-                    "weight":15
+                    "weight":15,
+                    "score":10
                 },
                 {
                     "style":"2:-1",
-                    "weight":15
+                    "weight":15,
+                    "score":10
                 }
             ]
         }

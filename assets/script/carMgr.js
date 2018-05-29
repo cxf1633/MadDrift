@@ -51,6 +51,39 @@ var carMgr = cc.Class({
         _touchDir: 0,
         _touchDuration:0,
         _curRotation:0, //当前转向
+        _animation:null,//爆炸动画
+    },
+    onEnable () {
+        let canvas = cc.find('Canvas')
+        canvas.on(cc.Node.EventType.TOUCH_START, this._onTouchStart, this);
+        canvas.on(cc.Node.EventType.TOUCH_END, this._onTouchEnd, this);
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this._onKeyDown, this);
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this._onKeyUp, this);
+
+        this.carViewNode = this.node.getChildByName("view");
+        this.boomNode = this.node.getChildByName("boom");
+        this._animation = this.boomNode.getComponent(cc.Animation);
+        this._animation.on('finished',  this.onFinished,    this);
+
+        this.leftStreak.node.zIndex = 1;
+        this.rightStreak.node.zIndex = 1;
+        this.node.zIndex = 1;
+        let rotation = 0;
+        this.rotationArray = new Array;
+        for (let index = 0; index < this.arraySize; index++) {
+            this.rotationArray.push(rotation);
+        }
+    },
+    playBoom(){
+        this.carViewNode.active = false;
+        this.boomNode.active = true;
+        let clip = "boom";
+        var animState = this._animation.play(clip);
+    },
+    onFinished(){
+        this.gameMgr.carBoomEnd();
+        this.boomNode.active = false;
+        this.carViewNode.active = true;
     },
     resetStreak(){
         this.leftStreak.reset();
@@ -67,6 +100,7 @@ var carMgr = cc.Class({
             this.rotationArray[index] = resetInfo.r;
         }
     },
+
     update (dt) {
         if(!this.gameMgr._isStart){
             return;
@@ -175,23 +209,7 @@ var carMgr = cc.Class({
                 break;
         }
     },
-    onEnable () {
-        let canvas = cc.find('Canvas')
-        canvas.on(cc.Node.EventType.TOUCH_START, this._onTouchStart, this);
-        canvas.on(cc.Node.EventType.TOUCH_END, this._onTouchEnd, this);
-        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this._onKeyDown, this);
-        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this._onKeyUp, this);
 
-
-        this.leftStreak.node.zIndex = 1;
-        this.rightStreak.node.zIndex = 1;
-        this.node.zIndex = 1;
-        let rotation = 0;
-        this.rotationArray = new Array;
-        for (let index = 0; index < this.arraySize; index++) {
-            this.rotationArray.push(rotation);
-        }
-    },
     onDisable () {
         let canvas = cc.find('Canvas')
         canvas.off(cc.Node.EventType.TOUCH_START, this._onTouchStart, this);
@@ -199,5 +217,7 @@ var carMgr = cc.Class({
 
         cc.systemEvent.off(cc.SystemEvent.EventType.KEY_DOWN, this._onKeyDown, this);
         cc.systemEvent.off(cc.SystemEvent.EventType.KEY_UP, this._onKeyUp, this);
+
+        this._animation.off('finished',  this.onFinished,    this);
     },
 });
