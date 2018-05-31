@@ -10,7 +10,8 @@
                     "weight":100,
                     "score":10
                 }
-            ]
+            ],
+            "maxSpeed":900
         },
         {
             "id": 2, 

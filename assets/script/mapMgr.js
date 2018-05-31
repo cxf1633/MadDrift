@@ -15,6 +15,15 @@ cc.Class({
         corner2: cc.Node,
         corner3: cc.Node,
  
+        maxBlock: {
+            default: 20,
+            tooltip: '地图块最大数量'
+        },
+        remainBlock: {
+            default: 10,
+            tooltip: '保留经过地块数量'
+        },
+
         _blockMax:0,
         
         _bolckObjList:null,//现有地图块
@@ -32,16 +41,13 @@ cc.Class({
 
         _lastRotation:0,//创建的最后一个地块不能往下
 
-        _blockScore:0,
+        _lastScore:0,
         _curScore:0,
         _totalScore:0,
-
-        _lastAngle:0,
-        _lastScore:0,
     },
 
     start () {
-        this._blockMax = 20;
+        this._blockMax = this.maxBlock;
         this._curMapPos = cc.p(0, -960);
 
         this.prefabList = {};
@@ -111,7 +117,7 @@ cc.Class({
                         obj.setPosAndDir(lastObj);
                     }
                     else{
-                        this._curBlockObj = obj;
+                        // this._curBlockObj = obj;
                         obj.setPosAndDir();
                     }
                     obj.initPosInfo();
@@ -198,7 +204,8 @@ cc.Class({
                 type:blockType,
                 dir:blockDir,
                 scaleX:true,
-                score:score/styleList.length
+                score:score/styleList.length,
+                maxSpeed:data.maxSpeed
             }
             configList.push(config);
         }
@@ -217,7 +224,7 @@ cc.Class({
         return obj;
     },
     //判定游戏是否继续
-    isGameContinue(car){
+    normalUpdate(car){
         let carPos = car.getPosition();
         let result = true;
         let hasBlock = false;
@@ -229,6 +236,10 @@ cc.Class({
             if (carPos.x >= Math.min(obj._root.x, oppoPos.x) && carPos.x <= Math.max(obj._root.x, oppoPos.x) &&
                 carPos.y >= Math.min(obj._root.y, oppoPos.y) && carPos.y <= Math.max(obj._root.y, oppoPos.y)) {
                 hasBlock = true;
+                if (this._curBlockObj == null) {
+                    this._curBlockObj = obj;
+                    break;
+                }
                 //同一个地块
                 if (obj._id == this._curBlockObj._id) {
                     break;
@@ -239,13 +250,13 @@ cc.Class({
                         cc.log("进入赛道id:", obj._id, "  type=", obj._type);
                         //计分
                         if (obj._id > this._curBlockObj._id) {
-                            this._blockScore = 0;
+                            this._lastScore = 0;
                         }
                         else{
-                            this._blockScore = obj._score;
+                            this._lastScore = obj._score;
                         }
-                        this._lastScore = 0;
                         this._curBlockObj = obj;
+                        car.getComponent("carMgr").setMaxSpeed(obj._maxSpeed);
                     }
                     //改变地图层级
                     if (this._hideBlockObj != null) {
@@ -267,7 +278,9 @@ cc.Class({
             return false;
         }
         //动态增加减少赛道
-        if ((this._bolckObjList[this._bolckObjList.length -1]._id - this._curBlockObj._id) < this._blockMax/2) {
+        
+        //if ((this._bolckObjList[this._bolckObjList.length -1]._id - this._curBlockObj._id) < this._blockMax/2) {
+        if ((this._curBlockObj._id - this._bolckObjList[0]._id) > this.remainBlock) {
             let firstObj = this._bolckObjList.shift();
             this._blockPoolList[firstObj._type].put(firstObj);
             let lastObj = this._bolckObjList[this._bolckObjList.length -1];
@@ -298,13 +311,23 @@ cc.Class({
     calcCollision(carPos, obj){
         let result = true;
         let per = 0;
+        let score = 0;
+        let addScore = 0;
         if(obj._type == 0){
             let pLength =0
-            //左 右
-            if(obj._root.rotation === -90 || obj._root.rotation === 270 ||
-                obj._root.rotation === 90 || obj._root.rotation === -270) {
+            //左
+            if(obj._root.rotation === -90 || obj._root.rotation === 270){
+                pLength = Math.abs(carPos.y - obj._root.y);
+                per = (obj._root.x - carPos.x)/640;
+            }
+            // 右
+            else if(obj._root.rotation === 90 || obj._root.rotation === -270) {
                 pLength = Math.abs(carPos.y - obj._root.y);
                 per = (carPos.x - obj._root.x)/640;
+            }
+            else if(Math.abs(obj._root.rotation) === 180) {
+                pLength = Math.abs(carPos.x - obj._root.x);
+                per = (obj._root.y - carPos.y)/640;
             }
             else{
                 pLength = Math.abs(carPos.x - obj._root.x);
@@ -318,17 +341,16 @@ cc.Class({
                 result = true;   
             }
             //计算得分
-            let score = obj._score * per;
-            let addScore = score - this._blockScore;
+            score = obj._score * per;
+            addScore = score - this._lastScore;
             this._curScore += addScore;
             if (this._curScore > this._totalScore) {
                 this._totalScore = Math.ceil(this._curScore);
             }
-            this._blockScore = score;
+            this._lastScore = score;
         }
         else{
-            let origin = obj._originPos;
-            let vector = cc.v2(carPos.x - origin.x, carPos.y - origin.y);
+            let vector = cc.pSub(carPos, obj._originPos)
             let pLength = cc.pLength(vector);
             let min = obj._root.width - 50 - 540;
             let max = obj._root.width - 50;
@@ -341,32 +363,41 @@ cc.Class({
             //计算得分
             let angle = cc.pToAngle(vector);
             per = Math.PI/5*obj._score;
-            let curScore = (obj._startAngle - angle)*per*obj._dir;
-            var addScore = curScore - this._lastScore;
+            score = (obj._startAngle - angle)*per*obj._dir;
+            addScore = score - this._lastScore;
             this._curScore += addScore;
+            // cc.log("score =", score);
+            // cc.log("addScore =", addScore);
+            // cc.log("this._curScore =", this._curScore);
             if (this._curScore > this._totalScore) {
                 this._totalScore = Math.ceil(this._curScore);
             }
-            this._lastScore = curScore;
+            this._lastScore = score;
         }
         return result;
     },
 
    //获取游戏得分
     getScore(){
-        // cc.log("this._blockScore=", this._blockScore);
-        //cc.log("this._curScore=", this._curScore);
-        // cc.log("this._totalScore=", this._totalScore);
         return this._totalScore ;
     },
-    //获取复活的位置
-    getContinuePos(){
-        this.node.setPosition(this._curMapPos);
-        let resetInfo = {
-            p:this._curBlockObj._trackPos,
-            r:this._curBlockObj._root.rotation,
+    reset(){
+        this.node.setPosition(cc.p(0, 0));
+        this._totalScore = 0;
+        for (let index = 0; index < this._bolckObjList.length; index++) {
+            const obj = this._bolckObjList[index];
+            obj._root.rotation = 0;
+            obj._root.scaleX = 1;
+            this._blockPoolList[obj._type].put(obj);
         }
-        return resetInfo;
+        this._bolckObjList = null;
+        this._curBlockObj = null;
+        this._hideBlockObj = null;
+        this._lastRotation = 0,
+        this._lastScore = 0;
+        this._curScore = 0;
+        this._totalScore = 0;
+        this.initMapBlock();
     },
 
     createBlock(blockType){

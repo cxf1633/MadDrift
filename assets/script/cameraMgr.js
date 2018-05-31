@@ -8,8 +8,10 @@ cc.Class({
             type: cc.Node
         },
     },
-    
-    update (dt) {
+    start(){
+        this.normalUpdate();
+    },
+    normalUpdate (dt) {
         if (!this.target) return;
         this.node.position = this.target.position;
     },

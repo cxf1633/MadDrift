@@ -6,6 +6,10 @@ var carMgr = cc.Class({
             default: null,
             type: cc.Component
         },
+        camera: {
+            default: null,
+            type: cc.Node
+        },
         //拖尾
         leftStreak: {
             default: null,
@@ -20,6 +24,10 @@ var carMgr = cc.Class({
             tooltip: '最大速度'
         },
         minSpeed: {
+            default: 100,
+            tooltip: '最小速度'
+        },
+        startSpeed: {
             default: 100,
             tooltip: '最小速度'
         },
@@ -47,6 +55,8 @@ var carMgr = cc.Class({
             default: 50,
             tooltip: '缓存大小'
         },
+        //不同赛道最大速度会改变
+        _curMaxSpeed:0,
         _curSpeed:0,
         _touchDir: 0,
         _touchDuration:0,
@@ -73,6 +83,14 @@ var carMgr = cc.Class({
         for (let index = 0; index < this.arraySize; index++) {
             this.rotationArray.push(rotation);
         }
+        this._curMaxSpeed = this.maxSpeed;
+        this._curSpeed = this.startSpeed;
+        this._cameraMgr =  this.camera.getComponent("cameraMgr");
+    },
+    setMaxSpeed(maxSpeed){
+        if (maxSpeed != null) {
+            this._curMaxSpeed = maxSpeed;
+        }
     },
     playBoom(){
         this.carViewNode.active = false;
@@ -89,23 +107,22 @@ var carMgr = cc.Class({
         this.leftStreak.reset();
         this.rightStreak.reset();
     },
-    reset(resetInfo){
-        this.node.setPosition(resetInfo.p);
-        this._curSpeed = 0;
+    reset(pos, rota){
+        this.node.setPosition(pos);
+        this._curSpeed = this.startSpeed;
         this._touchDir = 0;
         this._touchDuration = 0;
         this._curRotation = 0;
-        this.node.rotation = resetInfo.r;
+        this.node.rotation = rota;
         for (let index = 0; index < this.arraySize; index++) {
-            this.rotationArray[index] = resetInfo.r;
+            this.rotationArray[index] = rota;
         }
+        this._cameraMgr.normalUpdate();
     },
-
-    update (dt) {
+    normalUpdate(dt){
         if(!this.gameMgr._isStart){
             return;
         }
-
         if (this._touchDir != 0) {
             this._touchDuration = 0;
             this._touchDuration += dt;
@@ -114,7 +131,6 @@ var carMgr = cc.Class({
                 this._curRotation = this.rotationMax;
             }
         }
-        //this._curRotation = this.rotationMax;
         let rs = this._curRotation;
         if (this._touchDuration < this.clickTime) {
             rs =  rs /(2 -this._touchDuration);
@@ -122,40 +138,42 @@ var carMgr = cc.Class({
         let length = this.rotationArray.length;
         let rotation = this.rotationArray[length - 1]; 
         rotation = rotation + dt * this._touchDir * rs;
-        //cc.log("push rotation ==>", rotation);
         this.rotationArray.push(rotation)
-
         this.node.rotation = rotation;
-
         if (this._touchDir == 0) {
             this._curSpeed += this.addSpeedAcc * dt;
-            if (this._curSpeed > this.maxSpeed) {
-                this._curSpeed = this.maxSpeed;
+            if (this._curSpeed > this._curMaxSpeed) {
+                this._curSpeed = this._curMaxSpeed;
             }
         }
         else{
-            this._curSpeed -= this.subSpeedAcc * dt;
-            if (this._curSpeed < this.minSpeed) {
-                this._curSpeed = this.minSpeed;
+            if (this._curSpeed > this.minSpeed){
+                if((this._curSpeed - this.subSpeedAcc * dt ) < this.minSpeed) {
+                    this._curSpeed = this.minSpeed;
+                }
+                else{
+                    this._curSpeed -= this.subSpeedAcc * dt;
+                }
             }
         }
         let realSpeed = this._curSpeed;
+        //cc.log("realSpeed =", realSpeed);
         rotation = this.rotationArray.shift()
-        //cc.log("pop rotation ==>", rotation);
         let angle = rotation / 180 * Math.PI;
         this.node.x += realSpeed * dt * Math.sin(angle);
         this.node.y += realSpeed * dt * Math.cos(angle);
         // cc.log("x=", this.node.x);
         // cc.log("y=", this.node.y);
         this._updataStreak();
+        this._cameraMgr.normalUpdate();
     },
     _updataStreak(){
         //左前轮
-        this.leftStreak.node.x = this.node.x - 16 * Math.cos(this.node.rotation / 180 * Math.PI)+ 18 * Math.sin(this.node.rotation / 180 * Math.PI);
-        this.leftStreak.node.y = this.node.y + 18 * Math.cos(this.node.rotation / 180 * Math.PI)+ 16 * Math.sin(this.node.rotation / 180 * Math.PI);
+        this.leftStreak.node.x = this.node.x - 16 * Math.cos(this.node.rotation / 180 * Math.PI) + 18 * Math.sin(this.node.rotation / 180 * Math.PI);
+        this.leftStreak.node.y = this.node.y + 18 * Math.cos(this.node.rotation / 180 * Math.PI) + 16 * Math.sin(this.node.rotation / 180 * Math.PI);
         //右前轮
-        this.rightStreak.node.x = this.node.x + 16 * Math.cos(this.node.rotation / 180 * Math.PI)+ 18 * Math.sin(this.node.rotation / 180 * Math.PI);
-        this.rightStreak.node.y = this.node.y + 18 * Math.cos(this.node.rotation / 180 * Math.PI)- 16 * Math.sin(this.node.rotation / 180 * Math.PI);
+        this.rightStreak.node.x = this.node.x + 16 * Math.cos(this.node.rotation / 180 * Math.PI) + 18 * Math.sin(this.node.rotation / 180 * Math.PI);
+        this.rightStreak.node.y = this.node.y + 18 * Math.cos(this.node.rotation / 180 * Math.PI) - 16 * Math.sin(this.node.rotation / 180 * Math.PI);
     },
     _onTouchStart (event) {
         let touchStartPos = event.touch.getLocation();
@@ -167,13 +185,11 @@ var carMgr = cc.Class({
             this._touchDir = 1;
         }
     },
-
     _onTouchEnd (event) {
         this._touchDir = 0;
         this._touchDuration = 0;
         this._curRotation = 0;
     },
-
     _onKeyDown (event) {
         switch(event.keyCode) {
             case cc.KEY.a:
@@ -192,7 +208,6 @@ var carMgr = cc.Class({
                 break;
         }
     },
-
     _onKeyUp (event) {
         switch(event.keyCode) {
             case cc.KEY.a:
@@ -209,7 +224,6 @@ var carMgr = cc.Class({
                 break;
         }
     },
-
     onDisable () {
         let canvas = cc.find('Canvas')
         canvas.off(cc.Node.EventType.TOUCH_START, this._onTouchStart, this);

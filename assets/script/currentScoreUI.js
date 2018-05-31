@@ -33,6 +33,9 @@ cc.Class({
     },
 
     onLoad () {
+        if (window.wx != undefined) {
+            window.wx.showShareMenu({withShareTicket: true});//设置分享按钮
+        }
         this.addClickEvent(this.advertisingBtn, this.node, "currentScoreUI", "onAdvertising");
         this.addClickEvent(this.sharedBtn, this.node, "currentScoreUI", "onShared");
         this.addClickEvent(this.skipBtn, this.node, "currentScoreUI", "onSkip");
@@ -53,6 +56,22 @@ cc.Class({
 
     onShared(){
         cc.log("分享");
+        // cc.log(this._imageUrl)
+        if (window.wx != undefined) {
+            window.wx.shareAppMessage({
+                title: "分享分享分享分享分享分享",
+                imageUrl: "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1527657066461&di=215e31a5449a243504d264772852001a&imgtype=0&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F01ab7d55447e450000019ae9255d82.jpg",
+            });
+        }
+        // if (window.wx != undefined) {
+        //     cc.loader.loadRes("texture/share",function(err,data){
+        //         cc.log(data.url)
+        //         window.wx.shareAppMessage({
+        //             title: "分享分享分享分享分享分享",
+        //             imageUrl: data.url,
+        //         });
+        //     });
+        // }
     },
 
     onSkip(){

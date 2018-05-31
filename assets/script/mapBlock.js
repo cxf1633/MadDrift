@@ -7,6 +7,7 @@ var mapBlock = cc.Class({
         _type:null,
         _root:null,
         _score:0,
+        _maxSpeed:0,
 
         _originPos:null,//弯道的圆心
         _oppoPos:null,//对角的位置
@@ -24,6 +25,7 @@ var mapBlock = cc.Class({
         this._dir = config.dir;
         this._bScaleX = config.scaleX;
         this._score = config.score;
+        this._maxSpeed = config.maxSpeed;
         this._root.active = true;
     },
     
@@ -69,8 +71,8 @@ var mapBlock = cc.Class({
                 this._originPos = cc.v2(root.x - root.width*root.scaleX, root.y);
                 this._trackPos = cc.v2(root.x - offset*root.scaleX, root.y);
                 this._oppoPos = cc.v2(root.x - root.width*root.scaleX, root.y - root.height);
-
-                this._startAngle = cc.pToAngle(cc.pSub(this._trackPos, this._originPos));
+                //往下的初始弧度为负数
+                this._startAngle = -cc.pToAngle(cc.pSub(this._trackPos, this._originPos));
             }
         }
         //上

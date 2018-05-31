@@ -21,16 +21,10 @@ var uiControl = cc.Class({
             tooltip: '当前分数界面'
         },
 
-        scoreUI: {
+        clearingUI: {
             default:null, 
             type:cc.Node,
-            tooltip: '得分结算界面'
-        },
-
-        rankUI: {
-            default:null, 
-            type:cc.Node,
-            tooltip: '排行榜界面'
+            tooltip: '结算界面'
         },
 
         _sceneTable: null,
@@ -58,7 +52,7 @@ var uiControl = cc.Class({
             this.gameNode.active = true;
             this.gameUI.active = true;
             if(_para === true) {
-                this.gameNode.getComponent("gameMgr").onContinueBtn();
+                this.gameNode.getComponent("gameMgr").continueGame();
             }
         }
         else if(sceneId == 2){
@@ -69,16 +63,11 @@ var uiControl = cc.Class({
             }
         }
         else if(sceneId == 3){
-            tempNode = [this.scoreUI];
-            this.scoreUI.active = true;
+            tempNode = [this.clearingUI];
+            this.clearingUI.active = true;
             if(_para != null) {
-                this.scoreUI.getComponent('scoreUI').showScore(_para);
+                this.clearingUI.getComponent('clearingUI').showScore(_para);
             }
-        }
-        else if(sceneId == 4){
-            tempNode = [this.rankUI];
-            this.rankUI.active = true;
-            this.rankUI.getComponent('rankUI').getOldNodeId(this._oldNdoeId);
         }
 
         if(tempNode != null) {

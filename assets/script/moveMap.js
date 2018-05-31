@@ -8,8 +8,8 @@ cc.Class({
     },
     curPos:null,
     onLoad () {
+        this._isTouch = false;
         var self = this;
-        self.isMoving = false;
         self.canvas.on(cc.Node.EventType.TOUCH_START, function (event) {self.touchBegin.call(self,event)}, self.node);
         self.canvas.on(cc.Node.EventType.TOUCH_MOVE, function (event) {self.touchMove.call(self,event)}, self.node);
         self.canvas.on(cc.Node.EventType.TOUCH_END, function (event) {self.touchEnd.call(self,event)}, self.node);
@@ -17,11 +17,17 @@ cc.Class({
         this.gameMgr = this.node.getComponent("gameMgr");
     },
     touchBegin(event){
+        if (!this._isTouch) {
+            return;
+        }
         var touches = event.getTouches();
         var touchLoc = touches[0].getLocation();
         this.curPos = touchLoc;
     },
     touchMove(event){
+        if (!this._isTouch) {
+            return;
+        }
         var touches = event.getTouches();
         var touchLoc = touches[0].getLocation();
         var offseX = touchLoc.x - this.curPos.x;
@@ -35,6 +41,8 @@ cc.Class({
         }
     },
     touchEnd(event){
-        this.isMoving = false;
+        if (!this._isTouch) {
+            return;
+        }
     }
 });
